@@ -8,6 +8,11 @@ import os
 from datetime import date, datetime, timedelta
 from zipline.utils.calendars import get_calendar
 
+def get_business_date_list(fmt="%Y-%m-%d"):
+    t=get_calendar('XSHG').all_sessions
+    pydate_array=t.to_pydatetime()
+    return np.vectorize(lambda s: s.strftime(fmt))(pydate_array)
+
 def get_prev_business_date(d,n,fmt="%Y-%m-%d",VERBOSE=False):
     if d is None:
         today = date.today()
@@ -18,15 +23,25 @@ def get_prev_business_date(d,n,fmt="%Y-%m-%d",VERBOSE=False):
     sdate = (today - timedelta(7)).strftime(fmt)
     if VERBOSE: print(sdate)
 
-    t=get_calendar('XSHG').all_sessions
-    pydate_array=t.to_pydatetime()
-    date_only_array =  np.vectorize(lambda s: s.strftime(fmt))(pydate_array)
+    date_only_array  = get_business_date_list()
+
     if VERBOSE: print(date_only_array > sdate)
     if VERBOSE: print(date_only_array < edate)
     date_only_array = date_only_array[ date_only_array < edate]
     if VERBOSE: print(date_only_array[-100:] )
 
     return date_only_array[n]
+
+def get_config(cfg = 'token'):
+    cp = configparser.ConfigParser()
+    cp.read('../../factors/config/databasic.cfg')
+    if cfg in ('token','ix_symb'):
+        sect = 'tushare'
+    else:
+        sect = ''
+    result = eval(cp.get(sect,cfg.upper()))
+    return result
+
 
 
 if __name__ == '__main__':
