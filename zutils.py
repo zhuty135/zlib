@@ -32,14 +32,16 @@ def get_prev_business_date(d,n,fmt="%Y-%m-%d",VERBOSE=False):
 
     return date_only_array[n]
 
+
 def get_config(cfg = 'token'):
+    import configparser
     cp = configparser.ConfigParser()
     cp.read('../../factors/config/databasic.cfg')
     if cfg in ('token','ix_symb'):
         sect = 'tushare'
     else:
         sect = ''
-    result = eval(cp.get(sect,cfg.upper()))
+    result = eval(cp.get(sect,cfg))
     return result
 
 
