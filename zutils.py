@@ -8,6 +8,8 @@ import os
 from datetime import date, datetime, timedelta
 from zipline.utils.calendars import get_calendar
 
+
+
 def get_business_date_list(fmt="%Y-%m-%d"):
     t=get_calendar('XSHG').all_sessions
     pydate_array=t.to_pydatetime()
@@ -35,8 +37,10 @@ def get_prev_business_date(d,n,fmt="%Y-%m-%d",VERBOSE=False):
 
 def get_config(cfg = 'token'):
     import configparser
+    import pwd
+    uname = pwd.getpwuid(os.getuid()).pw_name
     cp = configparser.ConfigParser()
-    cp.read('../../factors/config/databasic.cfg')
+    cp.read('/work/'+uname+'/project/factors/config/databasic.cfg')
     if cfg in ('token','ix_symb'):
         sect = 'tushare'
     else:
