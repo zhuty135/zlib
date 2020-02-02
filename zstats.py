@@ -127,7 +127,7 @@ def main():
     if runmode in ('result_stats'):
         func = runmode + "('" +  params + "',verbose=" + str(verbose) +')'
 
-    print('running function:',func)
+    if verbose: print('running function:',func)
     eval(func)
 
 if __name__ == '__main__':
