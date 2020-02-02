@@ -15,17 +15,17 @@ def get_sharpe(returns, rf=0, days=252):
 def result_stats(perf,verbose=False):
     prets = perf['returns']
     sr = sharpe_ratio(returns = prets)
-    ann = annual_return( returns = prets, period = 'daily')
+    aret = annual_return( returns = prets, period = 'daily')
     avol = annual_volatility( returns = prets, period = 'daily')
     maxdd  = max_drawdown(prets)#perf['max_drawdown']       
     num_of_txns = perf['transactions'].size
     if verbose:
         print('sr',sr)
-        print('ann',ann)
+        print('aret',aret)
         print('avol',avol)
         print(maxdd,get_max_dd(perf['portfolio_value']))
         print('num_of_txns',num_of_txns)
-    return sr, ann, avol,maxdd, num_of_txns 
+    return sr, aret, avol,maxdd, num_of_txns 
 
 def prob(x):
     return np.sum(x>0)/len(x)
