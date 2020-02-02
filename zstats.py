@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import math
 from empyrical import sharpe_ratio, annual_return,max_drawdown, cum_returns, annual_volatility 
 def get_max_dd(cumret):
     dd = (np.maximum.accumulate(cumret) - cumret)/np.maximum.accumulate(cumret)
@@ -13,12 +14,30 @@ def get_sharpe(returns, rf=0, days=252):
     return sharpe_ratio
 
 def result_stats(perf,verbose=False):
+    if isinstance(perf,str):
+        perf = pd.read_pickle(perf)
+        
     prets = perf['returns']
     sr = sharpe_ratio(returns = prets)
     aret = annual_return( returns = prets, period = 'daily')
     avol = annual_volatility( returns = prets, period = 'daily')
     maxdd  = max_drawdown(prets)#perf['max_drawdown']       
-    num_of_txns = perf['transactions'].size
+    txns = perf['weight']#perf['transactions']
+    tdf = pd.DataFrame() 
+    for index, value in txns.items():
+        if isinstance(value,dict):
+            for k,v in value.items():
+                tdf = tdf.append(pd.DataFrame({'ticker':[k],'dt':[index],'weight':[v]}))
+
+    #tdf.set_index('dt',inplace=True)
+    #tdf.sort_index(inplace=True)
+    tdf.sort_values(by=['dt'],inplace=True)
+    tdf.reset_index(inplace=True)
+    #tdf.to_csv('/tmp/tdf.csv')
+    a = np.sign(tdf['weight'])
+    num_of_txns = len(np.where(np.diff(np.sign(a)))[0])
+
+    #num_of_txns = perf['transactions'].size
     if verbose:
         print('sr',sr)
         print('aret',aret)
@@ -87,7 +106,29 @@ def cal_prob():
         output.to_csv('/work/jzhu/output/cal/calendar_'+ticker +'.csv')
 
 def main():
-    cal_prob()
+    import getopt, sys
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],"m:p:v",["mode=", "help"])
+    except getopt.GetoptError as err:
+        print(str(err))
+        usage()
+        sys.exit(2)
+    verbose = False
+    runmode = 'cal_prob()'
+    params = '()' 
+    for o, a in opts:
+        if o == "-v":
+            verbose = True
+        elif o in ("-m","--mode"):
+            runmode = a 
+        elif o in ("-p"):
+            params = a
+    func = runmode + params 
+    if runmode in ('result_stats'):
+        func = runmode + "('" +  params + "',verbose=" + str(verbose) +')'
+
+    print('running function:',func)
+    eval(func)
 
 if __name__ == '__main__':
    main() 
