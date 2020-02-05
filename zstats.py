@@ -18,33 +18,37 @@ def result_stats(perf,verbose=False):
         perf = pd.read_pickle(perf)
         
     prets = perf['returns']
-    sr = sharpe_ratio(returns = prets)
+    asr = sharpe_ratio(returns = prets)
     aret = annual_return( returns = prets, period = 'daily')
     avol = annual_volatility( returns = prets, period = 'daily')
     maxdd  = max_drawdown(prets)#perf['max_drawdown']       
     txns = perf['weight']#perf['transactions']
     tdf = pd.DataFrame() 
     for index, value in txns.items():
+        #if verbose: print(index,value)
         if isinstance(value,dict):
             for k,v in value.items():
+                if verbose: print(k,v)
                 tdf = tdf.append(pd.DataFrame({'ticker':[k],'dt':[index],'weight':[v]}))
 
     #tdf.set_index('dt',inplace=True)
     #tdf.sort_index(inplace=True)
-    tdf.sort_values(by=['dt'],inplace=True)
-    tdf.reset_index(inplace=True)
-    #tdf.to_csv('/tmp/tdf.csv')
-    a = np.sign(tdf['weight'])
-    num_of_txns = len(np.where(np.diff(np.sign(a)))[0])
+    num_of_txns = 0
+    if not tdf.empty :
+        tdf.sort_values(by=['dt'],inplace=True)
+        tdf.reset_index(inplace=True)
+        #tdf.to_csv('/tmp/tdf.csv')
+        a = np.sign(tdf['weight'])
+        num_of_txns = len(np.where(np.diff(np.sign(a)))[0])
 
     #num_of_txns = perf['transactions'].size
     if verbose:
-        print('sr',sr)
+        print('asr',asr)
         print('aret',aret)
         print('avol',avol)
         print(maxdd,get_max_dd(perf['portfolio_value']))
         print('num_of_txns',num_of_txns)
-    return sr, aret, avol,maxdd, num_of_txns 
+    return asr, aret, avol,maxdd, num_of_txns 
 
 def prob(x):
     return np.sum(x>0)/len(x)
