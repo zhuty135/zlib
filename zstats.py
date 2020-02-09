@@ -1,9 +1,14 @@
 #!/usr/bin/python3
+import sys
+import pwd
+import os
+uname = pwd.getpwuid(os.getuid()).pw_name
 
 import pandas as pd
 import numpy as np
 import math
 from empyrical import sharpe_ratio, annual_return,max_drawdown, cum_returns, annual_volatility 
+
 def get_max_dd(cumret):
     dd = (np.maximum.accumulate(cumret) - cumret)/np.maximum.accumulate(cumret)
     return np.max(dd)
@@ -62,14 +67,13 @@ def cal_prob():
               'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO']
 
     for ticker in tickers:
-        uname = 'jzhu' 
         data = pd.read_csv('/work/' + uname + '/data/pol/Index/'+ticker+'.csv')###bond index
         data.columns=[name.upper() for name in list(data.columns)]
         data['DATETIME'] = data['DATE'].apply(pd.to_datetime)
         
         data.index = data['DATE'].apply(pd.to_datetime)
         #data = data[data.index<=pd.to_datetime('2018/4/1')]
-        data['CLOSE'].plot()
+        #data['CLOSE'].plot()
         ##calendar dates
         data['weekday'] = data['DATETIME'].apply(lambda x:x.weekday())+1
         data['day'] = data['DATETIME'].apply(lambda x:x.day)
@@ -96,17 +100,17 @@ def cal_prob():
         monthall_1['month_chg_1'].iloc[-1]=monthend['CLOSE'].iloc[-1]/monthbegin['CLOSE'].iloc[-1]-1.
     
     
-        output = monthall[['month','month_chg']].groupby(['month']).median()
+        output = np.round(monthall[['month','month_chg']].groupby(['month']).median(),2)
         output.columns=['median']
-        output['prob'] = monthall[['month','month_chg']].groupby(['month']).apply(prob)['month_chg']
-        output['std']= monthall[['month','month_chg']].groupby(['month']).std()
+        output['prob'] = np.round(monthall[['month','month_chg']].groupby(['month']).apply(prob)['month_chg'],2)
+        output['std']= np.round(monthall[['month','month_chg']].groupby(['month']).std(),2)
         
         ##std change probability
-        output['std_prob'] = dayall[['month','std_chg']].groupby(['month']).apply(prob)['std_chg']
+        output['std_prob'] = np.round(dayall[['month','std_chg']].groupby(['month']).apply(prob)['std_chg'],2)
     
-        output['median_begin']=monthall_1[['month','month_chg_1']].groupby(['month']).median()
-        output['prob_begin'] = monthall_1[['month','month_chg_1']].groupby(['month']).apply(prob)['month_chg_1']
-        output['std_begin']= monthall_1[['month','month_chg_1']].groupby(['month']).std()
+        output['median_begin']=np.round(monthall_1[['month','month_chg_1']].groupby(['month']).median(),2)
+        output['prob_begin'] = np.round(monthall_1[['month','month_chg_1']].groupby(['month']).apply(prob)['month_chg_1'],2)
+        output['std_begin']= np.round(monthall_1[['month','month_chg_1']].groupby(['month']).std(),2)
         output.to_csv('/work/jzhu/output/cal/calendar_'+ticker +'.csv')
 
 def main():
@@ -118,7 +122,7 @@ def main():
         usage()
         sys.exit(2)
     verbose = False
-    runmode = 'cal_prob()'
+    runmode = 'cal_prob'
     params = '()' 
     for o, a in opts:
         if o == "-v":
