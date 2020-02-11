@@ -33,7 +33,7 @@ def result_stats(perf,verbose=False):
         #if verbose: print(index,value)
         if isinstance(value,dict):
             for k,v in value.items():
-                if verbose: print(k,v)
+                if verbose == 2: print(k,v)
                 tdf = tdf.append(pd.DataFrame({'ticker':[k],'dt':[index],'weight':[v]}))
 
     #tdf.set_index('dt',inplace=True)
