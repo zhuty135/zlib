@@ -51,7 +51,7 @@ def result_stats(perf,verbose=False):
         print('asr',asr)
         print('aret',aret)
         print('avol',avol)
-        print(maxdd,get_max_dd(perf['portfolio_value']))
+        print('maxdd',maxdd)#,get_max_dd(perf['portfolio_value']))
         print('num_of_txns',num_of_txns)
     return asr, aret, avol,maxdd, num_of_txns 
 
