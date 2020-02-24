@@ -45,6 +45,7 @@ def get_config(cfg = 'token'):
         sect = 'tushare'
     else:
         sect = ''
+    print('sect',sect)
     result = eval(cp.get(sect,cfg))
     return result
 
