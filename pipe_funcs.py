@@ -4,12 +4,17 @@ from math import sqrt
 import numpy as np
 import configparser
 import os
+import pwd
+uname = pwd.getpwuid(os.getuid()).pw_name
+
 u_sect = os.environ['MODEL_SELECT'] 
 m_select = u_sect
 MNAME =  u_sect# os.environ['MODEL_SELECT'] #eval(cp.get(sect,'M'))
 cp = configparser.ConfigParser()
 sect = 'base'
-cp.read('/work/jzhu/project/gitrepos/finger/config/models/' + m_select + '.cfg')
+m_path = '/work/' + uname + '/project/gitrepos/slib/config/' + m_select + '.cfg'
+print(m_path)
+cp.read(m_path)
 DAY_HACK_ENABLED = eval(cp.get(sect,'DAY_HACK_ENABLED'))
 BB_WIN_LEN = eval(cp.get(sect,'BB_WIN_LEN'))
 WIN_LEN = eval(cp.get(sect,'WIN_LEN'))
@@ -121,7 +126,7 @@ def make_pipeline(underly_sid, shortable_sid):#,DAY_HACK_ENABLED=True,BB_WIN_LEN
         ashorts = (annualizedVolatility_6M < 0)# if LONG ONLY else longs
     long_short_screen = alongs if LONG_ONLY else (alongs | ashorts)
 
-    my_screen = (annualizedVolatility_6M > 0) if MNAME in ['es','bd','cd','ed','md']  else long_short_screen 
+    my_screen = (annualizedVolatility_6M > 0) if MNAME in ['es','bd','dm','ed','md']  else long_short_screen 
     #my_screen = long_short_screen if False else (annualizedVolatility_6M > 0)#hlw
     print('finger1',MNAME)
     rsi = RSI(window_length=10,mask = pipeline_underly_sid)
