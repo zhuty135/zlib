@@ -9,12 +9,16 @@ from zipline.utils.math_utils import  nanargmax,  nanargmin,nanmax, nanmean,  na
 import configparser
 cp = configparser.ConfigParser()
 import os
+import pwd
+uname = pwd.getpwuid(os.getuid()).pw_name
+
 u_sect = os.environ['MODEL_SELECT'] 
 sect = 'base'
 m_select = u_sect
 cp = configparser.ConfigParser()
-sect = 'base'
-cp.read('/work/jzhu/project/gitrepos/finger/config/models/' + m_select + '.cfg')
+m_path = '/work/' + uname + '/project/gitrepos/slib/config/' + m_select + '.cfg'
+print(m_path)
+cp.read(m_path)
 
 VERBOSE = cp.getboolean(sect,'verbose')
 DAY_HACK_ENABLED = eval(cp.get(sect,'day_hack_enabled'))
