@@ -15,15 +15,15 @@ sect = 'base'
 m_path = '/work/' + uname + '/project/gitrepos/slib/config/' + m_select + '.cfg'
 print(m_path)
 cp.read(m_path)
-DAY_HACK_ENABLED = eval(cp.get(sect,'DAY_HACK_ENABLED'))
-BB_WIN_LEN = eval(cp.get(sect,'BB_WIN_LEN'))
-WIN_LEN = eval(cp.get(sect,'WIN_LEN'))
-W_WIN_LEN = eval(cp.get(sect,'W_WIN_LEN'))
+DAY_HACK_ENABLED = eval(os.environ['DAY_HACK_ENABLED'])#eval(cp.get(sect,'DAY_HACK_ENABLED'))
+BB_WIN_LEN = eval(os.environ['BB_WIN_LEN'])#eval(cp.get(sect,'BB_WIN_LEN'))
+WIN_LEN = eval(os.environ['WIN_LEN'])#eval(cp.get(sect,'WIN_LEN'))
+W_WIN_LEN = eval(os.environ['W_WIN_LEN'])# eval(cp.get(sect,'W_WIN_LEN'))
 SHARPE =  cp.getboolean(sect,'sharpe')
 LONG_ONLY =  eval(cp.get(u_sect,'long_only'))
-NUM_TOP_POSITIONS = eval(cp.get(sect,'num_top_positions'))
+NUM_TOP_POSITIONS = eval(os.environ['NUM_TOP_POSITIONS'])#eval(cp.get(sect,'num_top_positions'))
 TRIGGER_LEVEL =  cp.getfloat(sect,'trigger_level')
-PIPE_ENABLED =  eval(cp.get(sect,'pipe_enabled'))
+PIPE_ENABLED =  eval(os.environ['PIPE_ENABLED'])#eval(cp.get(sect,'pipe_enabled'))
 import os
 
 class ComputeVol1M(CustomFactor):

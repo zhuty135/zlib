@@ -21,11 +21,11 @@ print(m_path)
 cp.read(m_path)
 
 VERBOSE = cp.getboolean(sect,'verbose')
-DAY_HACK_ENABLED = eval(cp.get(sect,'day_hack_enabled'))
+DAY_HACK_ENABLED = eval(os.environ['DAY_HACK_ENABLED'])#eval(cp.get(sect,'day_hack_enabled'))
 ATR_ENABLED = cp.getboolean(sect,'ATR_ENABLED')
 #BB_SHRINK = eval(cp.get(sect,'bb_shrink'))
 #BB_BUF_ZONE = eval(cp.get(sect,'bb_buf_zone'))
-SEC_ENABLED = eval(cp.get(sect,'SEC_ENABLED'))
+SEC_ENABLED = eval(os.environ['SEC_ENABLED'])#eval(cp.get(sect,'SEC_ENABLED'))
 LONG_ONLY =  eval(cp.get(u_sect,'long_only'))
 MB_HACK = cp.getint('mb','mb_hack')
 
