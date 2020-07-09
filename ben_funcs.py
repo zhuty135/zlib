@@ -5,7 +5,7 @@ def get_chipin(a, w, context, m='mb',nd=18):
     ndz = nd/4
     ndz_flag =  context.bb_day_count_df.loc[a,'ndzero'] > ndz
     flag1  = context.bb_day_count_df.loc[a,'nd'] > nd
-    chipinfactor =  (min(nd, context.bb_day_count_df.loc[a,'ndzero']))/nd #was '16'
+    chipinfactor =  min(nd, context.bb_day_count_df.loc[a,'ndzero'])/nd #was '16'
     if ndz_flag : print('mbflag=',a,'chipinfactor=',chipinfactor, context.bb_day_count_df.loc[a,'nd'] ,w)
     adj_w =  MB_HACK*chipinfactor if ndz_flag else (1 if w > 1 and flag1 else w)
     if adj_w < 0:
