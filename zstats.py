@@ -2,6 +2,7 @@
 import sys
 import pwd
 import os
+import re
 uname = pwd.getpwuid(os.getuid()).pw_name
 
 import pandas as pd
@@ -34,7 +35,7 @@ def result_stats(perf,verbose=False):
         if isinstance(value,dict):
             for k,v in value.items():
                 if verbose == 2: print(k,v)
-                tdf = tdf.append(pd.DataFrame({'ticker':[k],'dt':[index],'weight':[v]}))
+                tdf = tdf.append(pd.DataFrame({'icker':[k],'dt':[index],'weight':[v]}))
 
     #tdf.set_index('dt',inplace=True)
     #tdf.sort_index(inplace=True)
@@ -58,16 +59,43 @@ def result_stats(perf,verbose=False):
 def prob(x):
     return np.sum(x>0)/len(x)
 
+def cal_macro():
+    ofile_list = ['ODSCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USDCNH','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG'] 
+    columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory','M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M' ]
+
+    rfile = '/work/' + uname + '/project/ql/data/macroraw.csv'
+    data = pd.read_csv(rfile)
+    print(data)
+    assert(0)
+
+    for f in ofile_list:
+        ifile = '/work/' + uname + '/project/ql/data/'+ f + '.csv'
+        ofile = '/work/' + uname + '/data/pol/macro/'+ f + '.csv'
+        idf = pd.read_csv(ifile)
+        print(idf)
+
 def cal_prob():
     #return np.sum(x>0)/len(x)
 
-    tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO',
+    if os.environ['ASSETTYPE'] == 'cfpa': 
+        tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO',
               'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO',
               'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO',
               'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO']
+    elif os.environ['ASSETTYPE'] == 'spgs' :
+        tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
+    else:
+        print('wrong ASSETTYPE')
+        assert(0)
+
 
     for ticker in tickers:
-        data = pd.read_csv('/work/' + uname + '/data/pol/Index/'+ticker+'.csv')###bond index
+        ipath = '/work/' + uname + '/data/pol/'
+        if re.match(r'.*\.TR$',ticker):
+            ipath += 'shared/spgs/'
+        else:
+            ipath += 'Index/'
+        data = pd.read_csv(ipath + ticker + '.csv')###bond index
         data.columns=[name.upper() for name in list(data.columns)]
         data['DATETIME'] = data['DATE'].apply(pd.to_datetime)
         
@@ -111,12 +139,15 @@ def cal_prob():
         output['median_begin']=np.round(monthall_1[['month','month_chg_1']].groupby(['month']).median(),2)
         output['prob_begin'] = np.round(monthall_1[['month','month_chg_1']].groupby(['month']).apply(prob)['month_chg_1'],2)
         output['std_begin']= np.round(monthall_1[['month','month_chg_1']].groupby(['month']).std(),2)
-        output.to_csv('/work/jzhu/output/cal/calendar_'+ticker +'.csv')
+        if eval(os.environ['OUTPUTFLAG']):
+            output.to_csv('/work/jzhu/output/cal/calendar_'+ticker +'.csv')
+        else:
+            print(ticker,output)
 
 def main():
     import getopt, sys
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"m:p:v",["mode=", "help"])
+        opts, args = getopt.getopt(sys.argv[1:],"m:p:t:ov",["mode=", "help"])
     except getopt.GetoptError as err:
         print(str(err))
         usage()
@@ -124,13 +155,20 @@ def main():
     verbose = False
     runmode = 'cal_prob'
     params = '()' 
+    os.environ['ASSETTYPE'] = 'cfpa'
+    os.environ['OUTPUTFLAG'] = 'False'
     for o, a in opts:
         if o == "-v":
             verbose = True
         elif o in ("-m","--mode"):
             runmode = a 
+        elif o in ("-o"):
+            os.environ['OUTPUTFLAG'] = 'True'
         elif o in ("-p"):
             params = a
+        elif o in ("-t"):
+            os.environ['ASSETTYPE'] = a
+
     func = runmode + params 
     if runmode in ('result_stats'):
         func = runmode + "('" +  params + "',verbose=" + str(verbose) +')'
