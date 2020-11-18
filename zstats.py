@@ -10,7 +10,7 @@ import numpy as np
 import math
 from empyrical import sharpe_ratio, annual_return,max_drawdown, cum_returns, annual_volatility 
 from zutils import get_business_date_list, get_prev_business_date
-from datetime import datetime,date
+from datetime import datetime,date, timedelta
 
 
 def get_max_dd(cumret):
@@ -73,65 +73,71 @@ def fake_data(df):
     df["ADJUSTED"] = df.iloc[:,0]
     dt_fmt='%Y/%m/%d'
 
-    ''' 
-    for r in df.items():
-        a = r[0]
-        print(r)
-        curdate = datetime(int(a[:4]),int(a[4:6]),int(a[6:8]), 0, 0, 0, 0, pytz.utc)
-
-        prevbday = get_prev_business_date(curdate,-1)
-        print(prevbday) 
-    assert(0)
-    ''' 
     sd = df.index[0].strftime(dt_fmt)
     #ed = df.index[-1].strftime(dt_fmt)
     ed = date.today().strftime(dt_fmt)
     bd_list = get_business_date_list(fmt=dt_fmt)
     print(sd,ed,type(bd_list))
     short_bd_list = pd.to_datetime(bd_list[(bd_list >= sd) & (bd_list <= ed)])
-    print(type(short_bd_list))
     newdf = df.copy(deep=True)
-    print('newdf\n',newdf)
-    newdf = newdf.reindex(short_bd_list,fill_value=0 ).ffill()
-    
+    #print('newdf\n',newdf)
+    ''' 
+    newdf = newdf.reindex(short_bd_list).ffill(limit=10)
+    df = newdf
+    ''' 
+    newdf = newdf.reindex(short_bd_list)
     df = df.append(newdf)
     df.sort_index(inplace=True)
     df = df[~df.index.duplicated(keep='first')]
+    df.ffill(limit=3,inplace=True)
+    df.bfill(limit=3,inplace=True)
     
 
-    print('test',df)
+    #print('test',df)
     return df
 
+def last_day_of_month(any_day):
+    next_month = any_day.replace(day=28) + timedelta(days=4)  # this will never fail
+    return next_month - timedelta(days=next_month.day)
 
 def cal_macro():
     ofile_list = ['ODSCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USDCNH','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG'] 
     columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory','M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M' ]
 
-    rfile = '/work/' + uname + '/data/raw/macroraw.csv'
+    rpath = '/work/' + uname + '/data/raw/'
+    rfile = rpath + 'macroraw.csv'
     df = pd.read_csv(rfile,index_col = 0,parse_dates=True)
-    #df = pd.read_csv(rfile,index_col = 0,parse_dates={'datetime': [0, 1, 2, 3]})
-        
-
-    
-    #print(df)
-    #print(ODSCHG)
+    lastdt = df.index[-1]
+    lastdt = last_day_of_month(lastdt +  timedelta(days=7))
+    df.loc[lastdt] = df.iloc[-1]
 
     for f in ofile_list:
         ofile = '/work/' + uname + '/output/macro/'+ f + '.csv'
+        df_ratio = None
         df_dif = None
-        if f in ['TODSCHG',]:
-            df_ratio = df['PMI_NewOrder']/df['PMI_GoodsInventory']
+        if f in ['ODSCHG',]:
+            df_ratio = df['PMI_NewOrder'][:-1]/df['PMI_GoodsInventory'][:-1]
             df_dif = pd.DataFrame(df_ratio.diff())
         elif f in ['ADDVALUE_CHG',]:
-            df_ratio = df['Industrial_added_value']
+            df_ratio = df['Industrial_added_value'].shift(1)
             df_dif = pd.DataFrame(df_ratio.diff(periods=12))
         elif f in ['DEBTCHG_YEAR',]:
-            df_ratio = df['RMBloan']
+            df_ratio = df['RMBloan'].shift(1)
             df_dif = pd.DataFrame(df_ratio.diff(periods=12))
+        elif f in ['M1M2_CHG',]:
+            df_ratio = df['M1'].shift(1) - df['M2'].shift(1) 
+            df_dif = pd.DataFrame(df_ratio.diff(periods=1))
+        elif f in ['CPI_PPI_CHG',]:
+            df_ratio = df['CPI'].shift(1) - df['PPI'].shift(1) 
+            df_dif = pd.DataFrame(df_ratio.diff(periods=1))
+
+        elif f in ['SHIBOR3M',]:
+            sfile = rpath + f + '.csv' 
+            sdf = pd.read_csv(sfile,index_col = 0,parse_dates=True)
+            sdf_ratio = sdf['SHIBOR3M']
+            df_dif = pd.DataFrame(sdf_ratio)
         else:
             continue
-
-        print((df_dif))
 
 
         odf = fake_data(df_dif)
