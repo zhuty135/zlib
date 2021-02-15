@@ -10,8 +10,8 @@ from zipline.utils.calendars import get_calendar
 
 
 
-def get_business_date_list(fmt="%Y-%m-%d"):
-    t=get_calendar('XSHG').all_sessions
+def get_business_date_list(fmt="%Y-%m-%d",caltype='XSHG'):
+    t=get_calendar(caltype).all_sessions
     pydate_array=t.to_pydatetime()
     return np.vectorize(lambda s: s.strftime(fmt))(pydate_array)
 
