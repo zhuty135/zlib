@@ -216,6 +216,50 @@ def cal_prob():
         else:
             print(ticker,output)
 
+import talib
+def convert_to_w(df):
+    print(df['date'])
+    df['date'] = pd.to_datetime(df['date'])
+
+    df['Week_Number'] = df['date'].dt.week
+    df['Year'] = df['date'].dt.year
+
+    df2 = df.groupby(['Year','Week_Number']).agg({'open':'first', 'high':'max', 'low':'min', 'close':'last','volume':'sum'})
+    if True:
+        df2.to_csv('/tmp/Weekly_OHLC.csv')
+    return(df2)
+
+def cal_kdj(wflag=True):
+    tickers = ['SPGSCL.TR',]#['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
+    tickers = ['USO.P']#['USDCNH.FX','XLK.P','SPGSCL.TR','USO.P','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O',]
+    ipath = None
+    for ticker in tickers:
+        ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
+        if re.match(r'.*\.TR$',ticker):
+            ipath += 'global/'
+        else:
+            ipath += 'idxetf/'
+
+        ifile = ipath + ticker + '.csv'
+        print(ifile)
+        df = pd.read_csv(ifile)#,index_col = 0,parse_dates=True)
+        if wflag:
+            dw = convert_to_w(df)
+        else:
+            dw = df
+        dw['k'], dw['d'] = talib.STOCH(
+            dw['high'].values, 
+            dw['low'].values, 
+            dw['close'].values,
+            fastk_period=9,
+            slowk_period=3,
+            slowk_matype=0,
+            slowd_period=3,
+            slowd_matype=0)
+        dw['j'] = 3*dw['k']-2*dw['d']
+        print(dw['k'],dw['d'])
+        print(dw['j'])
+
 def main():
     import getopt, sys
     try:
