@@ -157,16 +157,27 @@ def cal_prob():
               'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO']
     elif os.environ['ASSETTYPE'] == 'spgs' :
         tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
+    elif os.environ['ASSETTYPE'] == 'idxetf' :
+        tickers = ['VIX.GI' ]
+    elif os.environ['ASSETTYPE'] == 'iv' :
+        tickers = ['510050_iv_1m1000.PO' ]
     else:
         print('wrong ASSETTYPE')
 
 
     for ticker in tickers:
-        ipath = '/work/' + uname + '/data/pol/'
+        ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
-            ipath += 'shared/spgs/'
+            ipath += 'global/'
+        elif re.match(r'.*\.GI$',ticker):
+            ipath += 'idxetf/'
+        elif re.match(r'.*iv.*\.PO$',ticker):
+            ipath += 'iv/'
         else:
-            ipath += 'Index/'
+            ipath = '/work/' + uname + '/data/pol/'
+            ipath += 'shared/spgs/'
+        print(ipath)
+
         data = pd.read_csv(ipath + ticker + '.csv')###bond index
         data.columns=[name.upper() for name in list(data.columns)]
         data['DATETIME'] = data['DATE'].apply(pd.to_datetime)
@@ -214,7 +225,7 @@ def cal_prob():
         if eval(os.environ['OUTPUTFLAG']):
             output.to_csv('/work/jzhu/output/cal/calendar_'+ticker +'.csv')
         else:
-            print(ticker,output)
+            print(ticker,'\n',output)
 
 import talib
 def convert_to_w(df):
