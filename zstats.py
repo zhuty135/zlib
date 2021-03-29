@@ -164,6 +164,7 @@ def cal_prob():
     else:
         print('wrong ASSETTYPE')
 
+    agg_df = None#pd.DataFrame()
 
     for ticker in tickers:
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
@@ -175,7 +176,7 @@ def cal_prob():
             ipath += 'iv/'
         else:
             ipath = '/work/' + uname + '/data/pol/'
-            ipath += 'shared/spgs/'
+            ipath += 'Index/'#'shared/spgs/'
         print(ipath)
 
         data = pd.read_csv(ipath + ticker + '.csv')###bond index
@@ -226,6 +227,15 @@ def cal_prob():
             output.to_csv('/work/jzhu/output/cal/calendar_'+ticker +'.csv')
         else:
             print(ticker,'\n',output)
+        if agg_df is None:
+            agg_df = output['std']
+        else:
+            agg_df = pd.concat([agg_df,output['std']],axis=1)
+    agg_df.columns = tickers
+    if True:#eval(os.environ['OUTPUTFLAG']):
+        agg_df.to_csv('/work/jzhu/output/cal/calendar_agg.csv')
+    print(agg_df)
+    print(agg_df.mean(axis=1))
 
 import talib
 def convert_to_w(df):
