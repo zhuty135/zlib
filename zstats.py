@@ -101,7 +101,7 @@ def last_day_of_month(any_day):
     return next_month - timedelta(days=next_month.day)
 
 def cal_macro():
-    ofile_list = ['ODSCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USDCNH','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG'] 
+    ofile_list = ['ODSCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USDCNH','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG'] 
     columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory','M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M' ]
 
     rpath = '/work/' + uname + '/data/raw/'
@@ -117,6 +117,12 @@ def cal_macro():
         df_dif = None
         if f in ['ODSCHG',]:
             df_ratio = df['PMI_NewOrder'][:-1]/df['PMI_GoodsInventory'][:-1]
+            df_dif = pd.DataFrame(df_ratio.diff())
+        elif f in ['MGPCHG',]:
+            #df_ratio = df['PMI_MaterialInventory'][:-1]/df['PMI_NewOrder'][:-1]
+            df_ratio = df['PMI_MaterialInventory'][:-1]/df['PMI_GoodsInventory'][:-1]
+            #df_ratio = df['PMI_MaterialInventory'][:-1]/df['PMI_Production'][:-1]
+            #PMI,PMI_Production,PMI_NewOrder,PMI_NewExportOrder,PMI_GoodsInventory,PMI_MaterialInventory,
             df_dif = pd.DataFrame(df_ratio.diff())
         elif f in ['ADDVALUE_CHG',]:
             df_ratio = df['Industrial_added_value'].shift(1)
@@ -150,6 +156,7 @@ def cal_macro():
             print('no file output')
 
 def cal_prob():
+    tickers = None
     if os.environ['ASSETTYPE'] == 'cfpa': 
         tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO',
               'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO',
@@ -157,10 +164,10 @@ def cal_prob():
               'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO']
     elif os.environ['ASSETTYPE'] == 'spgs' :
         tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
-    elif os.environ['ASSETTYPE'] == 'idxetf' :
-        tickers = ['VIX.GI' ]
     elif os.environ['ASSETTYPE'] == 'iv' :
         tickers = ['510050_iv_1m1000.PO' ]
+    elif os.environ['ASSETTYPE'] == 'idxetf' :
+        tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
     else:
         print('wrong ASSETTYPE')
 
@@ -170,7 +177,7 @@ def cal_prob():
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
-        elif re.match(r'.*\.GI$',ticker):
+        elif re.match(r'.*\.GI$',ticker) or  re.match(r'.*\.P$',ticker) or  re.match(r'.*\.HI$',ticker) or  re.match(r'.*\.O$',ticker) or  re.match(r'.*\.FX$',ticker):
             ipath += 'idxetf/'
         elif re.match(r'.*iv.*\.PO$',ticker):
             ipath += 'iv/'
@@ -236,6 +243,7 @@ def cal_prob():
         agg_df.to_csv('/work/jzhu/output/cal/calendar_agg.csv')
     print(agg_df)
     print(agg_df.mean(axis=1))
+    print(agg_df.mean(axis=0))
 
 import talib
 def convert_to_w(df):
@@ -251,13 +259,25 @@ def convert_to_w(df):
     return(df2)
 
 def cal_kdj(wflag=True):
-    tickers = ['SPGSCL.TR',]#['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
-    tickers = ['USO.P']#['USDCNH.FX','XLK.P','SPGSCL.TR','USO.P','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O',]
+    if os.environ['ASSETTYPE'] == 'cfpa':
+        tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO',
+              'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO',
+              'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO',
+              'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO']
+    elif os.environ['ASSETTYPE'] == 'ifpa':
+        tickers = ['IFIHPA.PO','IFICPA.PO','IFIFPA.PO',]
+    elif os.environ['ASSETTYPE'] == 'idxetf':
+        tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
+    else:
+        tickers = ['SPGSCL.TR',]#['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
     ipath = None
     for ticker in tickers:
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
+        elif re.match(r'.*\.PO$',ticker):
+            ipath = '/work/' + uname + '/data/pol/'
+            ipath += 'Index/'
         else:
             ipath += 'idxetf/'
 
@@ -278,9 +298,15 @@ def cal_kdj(wflag=True):
             slowd_period=3,
             slowd_matype=0)
         dw['j'] = 3*dw['k']-2*dw['d']
-        print(dw['k'],dw['d'])
-        print(dw['j'])
-
+        if eval(os.environ['OUTPUTFLAG']):
+            opath = '/work/jzhu/output/cal/jw_'+ticker +'.csv'
+            print('output to:', opath)
+            dw.to_csv(opath)
+        else:
+            print(ticker,'\n')
+            print(dw['k'],dw['d'])
+            print(dw['j'])
+    
 def main():
     import getopt, sys
     try:
