@@ -266,8 +266,12 @@ def cal_kdj(wflag=True):
               'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO']
     elif os.environ['ASSETTYPE'] == 'ifpa':
         tickers = ['IFIHPA.PO','IFICPA.PO','IFIFPA.PO',]
+    elif os.environ['ASSETTYPE'] == 'shsz':
+        tickers = ['000016.SH','000905.SH','399300.SZ']
+    elif os.environ['ASSETTYPE'] == 'iv':
+        tickers = ['510050_iv_1m1000.PO','510050_iv_6m1000.PO']
     elif os.environ['ASSETTYPE'] == 'idxetf':
-        tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
+        tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT']
     else:
         tickers = ['SPGSCL.TR',]#['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
     ipath = None
@@ -277,8 +281,14 @@ def cal_kdj(wflag=True):
             ipath += 'global/'
         elif re.match(r'.*\.PO$',ticker):
             ipath = '/work/' + uname + '/data/pol/'
-            ipath += 'Index/'
+            if  re.match(r'.*iv.*\.PO$',ticker):
+                ipath += 'work/jzhu/input/iv/'
+            else:
+                ipath += 'Index/'
+        elif re.match(r'.*\.SH$',ticker) or re.match(r'.*\.SZ$',ticker):
+            ipath = '/work/jzhu/project/ql/data/'
         else:
+            assert(0)
             ipath += 'idxetf/'
 
         ifile = ipath + ticker + '.csv'
