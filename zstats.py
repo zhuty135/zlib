@@ -165,7 +165,7 @@ def get_tickers():
         tickers = ['510050_iv_1m1000.PO' ]
     elif os.environ['ASSETTYPE'] == 'idxetf' :
         #tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
-        tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT']
+        tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','XLP.P','ARKK.P']
     else:
         print('wrong ASSETTYPE')
     return tickers 
@@ -293,7 +293,6 @@ def cal_kdj(wflag=True):
         elif re.match(r'.*\.SH$',ticker) or re.match(r'.*\.SZ$',ticker):
             ipath = '/work/jzhu/project/ql/data/'
         else:
-            assert(0)
             ipath += 'idxetf/'
 
         ifile = ipath + ticker + '.csv'
