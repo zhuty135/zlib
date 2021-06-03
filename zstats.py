@@ -166,7 +166,7 @@ def get_tickers():
                     '510050_iv_6m1000.PO','510300_iv_6m1000.PO','sr_iv_6m1000.PO','m_iv_6m1000.PO','c_iv_6m1000.PO','cf_iv_6m1000.PO','cu_iv_6m1000.PO','ma_iv_6m1000.PO','al_iv_6m1000.PO','zc_iv_6m1000.PO','zn_iv_6m1000.PO','ta_iv_6m1000.PO','v_iv_6m1000.PO','pp_iv_6m1000.PO','ru_iv_6m1000.PO','l_iv_6m1000.PO','rm_iv_6m1000.PO','i_iv_6m1000.PO',]
     elif os.environ['ASSETTYPE'] == 'idxetf' :
         #tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
-        tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P',] 
+        tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','FTSE.GI','SKYY.O','HYG.P','GSG.P',] 
     elif os.environ['ASSETTYPE'] == 'shsz':
         tickers = ['000016.SH','000905.SH','399300.SZ']
     else:
