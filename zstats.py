@@ -169,6 +169,8 @@ def get_tickers():
         tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','FTSE.GI','SKYY.O','HYG.P','GSG.P',] 
     elif os.environ['ASSETTYPE'] == 'shsz':
         tickers = ['000016.SH','000905.SH','399300.SZ']
+    elif os.environ['ASSETTYPE'] == 'nh':
+        tickers = [ 'NH0001.NHF', 'NH0017.NHF', 'NH0016.NHF', 'NH0015.NHF', 'NH0014.NHF', 'NH0013.NHF', 'NH0012.NHF', 'NH0011.NHF', 'NH0010.NHF', 'NH0009.NHF', 'NH0008.NHF', 'NH0007.NHF', 'NH0006.NHF', 'NH0005.NHF', 'NH0004.NHF', 'NH0003.NHF', 'NH0002.NHF', 'NH0035.NHF', 'NH0034.NHF', 'NH0033.NHF', 'NH0032.NHF', 'NH0031.NHF', 'NH0030.NHF', 'NH0029.NHF', 'NH0028.NHF', 'NH0027.NHF', 'NH0026.NHF', 'NH0025.NHF', 'NH0024.NHF', 'NH0023.NHF', 'NH0022.NHF', 'NH0021.NHF', 'NH0020.NHF', 'NH0019.NHF', 'NH0018.NHF', 'NH0055.NHF', 'NH0054.NHF', 'NH0053.NHF', 'NH0052.NHF', 'NH0051.NHF', 'NH0050.NHF', 'NH0049.NHF', 'NH0048.NHF', 'NH0047.NHF', 'NH0046.NHF', 'NH0045.NHF', 'NH0044.NHF', 'NH0043.NHF', 'NH0042.NHF', 'NH0041.NHF', 'NH0040.NHF', 'NH0039.NHF', 'NH0038.NHF', 'NH0037.NHF', 'NH0036.NHF', 'NHSN.NHF', 'NHSM.NHF', 'NHSF.NHF', 'NHNI.NHF', 'NHLR.NHF', 'NHCS.NHF', 'NH0800.NHF', 'NH0700.NHF', 'NH0600.NHF', 'NH0500.NHF', 'NH0400.NHF', 'NH0300.NHF', 'NH0200.NHF', 'NH0100.NHF', 'NH0057.NHF', 'NH0056.NHF', ]
     else:
         print('wrong ASSETTYPE')
     return tickers 
@@ -182,6 +184,8 @@ def cal_prob():
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
+        elif re.match(r'.*\.NHF$',ticker):
+            ipath += 'nh/'
         elif re.match(r'.*\.GI$',ticker) or  re.match(r'.*\.P$',ticker) or  re.match(r'.*\.HI$',ticker) or  re.match(r'.*\.O$',ticker) or  re.match(r'.*\.FX$',ticker):
             ipath += 'idxetf/'
         elif re.match(r'.*iv.*\.PO$',ticker):
@@ -287,6 +291,8 @@ def cal_kdj(wflag=True):
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
+        elif re.match(r'.*\.NHF$',ticker):
+            ipath += 'nh/'
         elif re.match(r'.*\.PO$',ticker):
             ipath = '/work/' + uname + '/data/pol/'
             if  re.match(r'.*iv.*\.PO$',ticker):
