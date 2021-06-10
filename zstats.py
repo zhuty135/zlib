@@ -166,7 +166,7 @@ def get_tickers():
                     '510050_iv_6m1000.PO','510300_iv_6m1000.PO','sr_iv_6m1000.PO','m_iv_6m1000.PO','c_iv_6m1000.PO','cf_iv_6m1000.PO','cu_iv_6m1000.PO','ma_iv_6m1000.PO','al_iv_6m1000.PO','zc_iv_6m1000.PO','zn_iv_6m1000.PO','ta_iv_6m1000.PO','v_iv_6m1000.PO','pp_iv_6m1000.PO','ru_iv_6m1000.PO','l_iv_6m1000.PO','rm_iv_6m1000.PO','i_iv_6m1000.PO',]
     elif os.environ['ASSETTYPE'] == 'idxetf' :
         #tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
-        tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','FTSE.GI','SKYY.O','HYG.P','GSG.P',] 
+        tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','FTSE.GI','SKYY.O','HYG.P','GSG.P','FCHI.GI','VNINDEX.GI','SETI.GI','EWU.P','EWQ.P','EWG.P','EWJ.P','EWS.P','EWA.P','EWZ.P','FXY.P','FXE.P','FXB.P','VNM.P','THD.P','TBT.P', ] 
     elif os.environ['ASSETTYPE'] == 'shsz':
         tickers = ['000016.SH','000905.SH','399300.SZ']
     elif os.environ['ASSETTYPE'] == 'nh':
@@ -267,27 +267,10 @@ def convert_to_w(df):
         df2.to_csv('/tmp/Weekly_OHLC.csv')
     return(df2)
 
-def cal_kdj(wflag=True):
-    tickers = get_tickers()
-    '''
-    if os.environ['ASSETTYPE'] == 'cfpa':
-        tickers = ['CFRMPA.PO','CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO',
-              'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO',
-              'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO',
-              'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO','CFBUPA.PO','CFSNPA.PO','CFCSPA.PO']
-    elif os.environ['ASSETTYPE'] == 'ifpa':
-        tickers = ['IFIHPA.PO','IFICPA.PO','IFIFPA.PO',]
-    elif os.environ['ASSETTYPE'] == 'shsz':
-        tickers = ['000016.SH','000905.SH','399300.SZ']
-    elif os.environ['ASSETTYPE'] == 'iv':
-        tickers = ['510050_iv_1m1000.PO','510050_iv_6m1000.PO']
-    elif os.environ['ASSETTYPE'] == 'idxetf':
-        tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT']
-    else:
-        tickers = ['SPGSCL.TR',]#['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
-    '''
+def get_csv_data(ticker, wflag):
+    dw = None
     ipath = None
-    for ticker in tickers:
+    if True:
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
@@ -303,7 +286,6 @@ def cal_kdj(wflag=True):
             ipath = '/work/jzhu/project/ql/data/'
         else:
             ipath += 'idxetf/'
-
         ifile = ipath + ticker + '.csv'
         print(ifile)
         df = pd.read_csv(ifile)#,index_col = 0,parse_dates=True)
@@ -311,6 +293,32 @@ def cal_kdj(wflag=True):
             dw = convert_to_w(df)
         else:
             dw = df
+
+    return dw 
+
+def cal_bb(wflag=True):
+    tickers = get_tickers()
+    for ticker in tickers:
+        dw = get_csv_data(ticker,wflag)
+        dw['BolU'], dw['BolM'], dw['BolL'] = talib.BBANDS(
+            dw['close'].values,
+            timeperiod=20,
+            nbdevup=1,
+            nbdevdn=1,
+            matype=0)
+
+        if eval(os.environ['OUTPUTFLAG']):
+            opath = '/work/jzhu/output/cal/bw_'+ticker +'.csv'
+            print('output to:', opath)
+            dw.to_csv(opath)
+        else:
+            print(ticker,'\n')
+
+def cal_kdj(wflag=True):
+    tickers = get_tickers()
+    for ticker in tickers:
+        dw = get_csv_data(ticker,wflag)
+
         dw['k'], dw['d'] = talib.STOCH(
             dw['high'].values, 
             dw['low'].values, 
