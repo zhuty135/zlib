@@ -101,7 +101,7 @@ def last_day_of_month(any_day):
     return next_month - timedelta(days=next_month.day)
 
 def cal_macro():
-    ofile_list = ['ODSCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USDCNH','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG'] 
+    ofile_list = ['ODSCHG','EDMCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USDCNH','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG'] 
     columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory','M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M' ]
 
     rpath = '/work/' + uname + '/data/raw/'
@@ -117,6 +117,9 @@ def cal_macro():
         df_dif = None
         if f in ['ODSCHG',]:
             df_ratio = df['PMI_NewOrder'][:-1]/df['PMI_GoodsInventory'][:-1]
+            df_dif = pd.DataFrame(df_ratio.diff())
+        elif f in ['EDMCHG',]:
+            df_ratio = df['PMI_NewExportOrder'][:-1]/df['PMI_MaterialInventory'][:-1]
             df_dif = pd.DataFrame(df_ratio.diff())
         elif f in ['MGPCHG',]:
             #df_ratio = df['PMI_MaterialInventory'][:-1]/df['PMI_NewOrder'][:-1]
@@ -157,8 +160,8 @@ def cal_macro():
 
 def get_tickers():
     if os.environ['ASSETTYPE'] == 'cfpa':
-        #tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO', 'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO', 'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO', 'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO']
-        tickers = ['CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFCICA.PO', 'CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO',]
+        #tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO', 'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO', 'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO', 'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO']
+        tickers = ['CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO','CFCICA.PO', 'CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO','IFIFPA.PO','IFICPA.PO','IFIHPA.PO',]
     elif os.environ['ASSETTYPE'] == 'spgs' :
         tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
     elif os.environ['ASSETTYPE'] == 'iv' :
@@ -170,9 +173,10 @@ def get_tickers():
     elif os.environ['ASSETTYPE'] == 'shsz':
         tickers = ['000016.SH','000905.SH','399300.SZ']
     elif os.environ['ASSETTYPE'] == 'nh':
-        tickers = [ 'NH0001.NHF', 'NH0017.NHF', 'NH0016.NHF', 'NH0015.NHF', 'NH0014.NHF', 'NH0013.NHF', 'NH0012.NHF', 'NH0011.NHF', 'NH0010.NHF', 'NH0009.NHF', 'NH0008.NHF', 'NH0007.NHF', 'NH0006.NHF', 'NH0005.NHF', 'NH0004.NHF', 'NH0003.NHF', 'NH0002.NHF', 'NH0035.NHF', 'NH0034.NHF', 'NH0033.NHF', 'NH0032.NHF', 'NH0031.NHF', 'NH0030.NHF', 'NH0029.NHF', 'NH0028.NHF', 'NH0027.NHF', 'NH0026.NHF', 'NH0025.NHF', 'NH0024.NHF', 'NH0023.NHF', 'NH0022.NHF', 'NH0021.NHF', 'NH0020.NHF', 'NH0019.NHF', 'NH0018.NHF', 'NH0055.NHF', 'NH0054.NHF', 'NH0053.NHF', 'NH0052.NHF', 'NH0051.NHF', 'NH0050.NHF', 'NH0049.NHF', 'NH0048.NHF', 'NH0047.NHF', 'NH0046.NHF', 'NH0045.NHF', 'NH0044.NHF', 'NH0043.NHF', 'NH0042.NHF', 'NH0041.NHF', 'NH0040.NHF', 'NH0039.NHF', 'NH0038.NHF', 'NH0037.NHF', 'NH0036.NHF', 'NHSN.NHF', 'NHSM.NHF', 'NHSF.NHF', 'NHNI.NHF', 'NHLR.NHF', 'NHCS.NHF', 'NH0800.NHF', 'NH0700.NHF', 'NH0600.NHF', 'NH0500.NHF', 'NH0400.NHF', 'NH0300.NHF', 'NH0200.NHF', 'NH0100.NHF', 'NH0057.NHF', 'NH0056.NHF', ]
+        tickers = [ 'NH0001.NHF', 'NH0017.NHF', 'NH0016.NHF', 'NH0015.NHF', 'NH0014.NHF', 'NH0013.NHF', 'NH0012.NHF', 'NH0011.NHF', 'NH0010.NHF', 'NH0009.NHF', 'NH0008.NHF', 'NH0007.NHF', 'NH0006.NHF', 'NH0005.NHF', 'NH0004.NHF', 'NH0003.NHF', 'NH0002.NHF', 'NH0035.NHF', 'NH0034.NHF', 'NH0033.NHF', 'NH0032.NHF', 'NH0031.NHF', 'NH0030.NHF', 'NH0029.NHF', 'NH0028.NHF', 'NH0027.NHF', 'NH0026.NHF', 'NH0025.NHF', 'NH0024.NHF', 'NH0023.NHF', 'NH0022.NHF', 'NH0021.NHF', 'NH0020.NHF', 'NH0019.NHF', 'NH0018.NHF', 'NH0055.NHF', 'NH0054.NHF', 'NH0053.NHF', 'NH0052.NHF', 'NH0051.NHF', 'NH0050.NHF', 'NH0049.NHF', 'NH0048.NHF', 'NH0047.NHF', 'NH0046.NHF', 'NH0045.NHF', 'NH0044.NHF', 'NH0043.NHF', 'NH0042.NHF', 'NH0041.NHF', 'NH0040.NHF', 'NH0039.NHF', 'NH0038.NHF', 'NH0037.NHF', 'NH0036.NHF', 'NHSN.NHF', 'NHSM.NHF', 'NHSF.NHF', 'NHNI.NHF', 'NHLR.NHF', 'NHCS.NHF', 'NH0800.NHF', 'NH0700.NHF', 'NH0600.NHF', 'NH0500.NHF', 'NH0400.NHF', 'NH0300.NHF', 'NH0200.NHF', 'NH0100.NHF', 'NH0057.NHF', 'NH0056.NHF', 'W00109SPT.NM',]
     else:
-        print('wrong ASSETTYPE')
+        tickers = []
+        tickers.append(os.environ['ASSETTYPE'] )
     return tickers 
 
 def cal_prob():
@@ -184,7 +188,7 @@ def cal_prob():
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
-        elif re.match(r'.*\.NHF$',ticker):
+        elif re.match(r'.*\.NHF$',ticker) or  re.match(r'.*\.NM$',ticker) :
             ipath += 'nh/'
         elif re.match(r'.*\.GI$',ticker) or  re.match(r'.*\.P$',ticker) or  re.match(r'.*\.HI$',ticker) or  re.match(r'.*\.O$',ticker) or  re.match(r'.*\.FX$',ticker):
             ipath += 'idxetf/'
@@ -274,7 +278,7 @@ def get_csv_data(ticker, wflag):
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
-        elif re.match(r'.*\.NHF$',ticker):
+        elif re.match(r'.*\.NHF$',ticker) or re.match(r'.*\.NM$',ticker) :
             ipath += 'nh/'
         elif re.match(r'.*\.PO$',ticker):
             ipath = '/work/' + uname + '/data/pol/'
@@ -299,16 +303,17 @@ def get_csv_data(ticker, wflag):
 def cal_bb(wflag=True):
     tickers = get_tickers()
     for ticker in tickers:
+        tp = eval(os.environ['BWLEN'])
         dw = get_csv_data(ticker,wflag)
         dw['BolU'], dw['BolM'], dw['BolL'] = talib.BBANDS(
-            dw['close'].values,
-            timeperiod=20,
+            np.double(dw['close'].values),
+            timeperiod=tp,
             nbdevup=1,
             nbdevdn=1,
             matype=0)
 
         if eval(os.environ['OUTPUTFLAG']):
-            opath = '/work/jzhu/output/cal/bw_'+ticker +'.csv'
+            opath = '/work/jzhu/output/cal/bw' + os.environ['BWLEN'] + '_' +ticker +'.csv'
             print('output to:', opath)
             dw.to_csv(opath)
         else:
@@ -318,11 +323,12 @@ def cal_kdj(wflag=True):
     tickers = get_tickers()
     for ticker in tickers:
         dw = get_csv_data(ticker,wflag)
+        print(type(dw['high'].values))
 
         dw['k'], dw['d'] = talib.STOCH(
-            dw['high'].values, 
-            dw['low'].values, 
-            dw['close'].values,
+            np.double(dw['high'].values), 
+            np.double(dw['low'].values), 
+            np.double(dw['close'].values),
             fastk_period=9,
             slowk_period=3,
             slowk_matype=0,
@@ -341,7 +347,7 @@ def cal_kdj(wflag=True):
 def main():
     import getopt, sys
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"m:p:t:ov",["mode=", "help"])
+        opts, args = getopt.getopt(sys.argv[1:],"m:p:t:l:ov",["mode=", "help"])
     except getopt.GetoptError as err:
         print(str(err))
         usage()
@@ -351,6 +357,7 @@ def main():
     params = '()' 
     os.environ['ASSETTYPE'] = 'cfpa'
     os.environ['OUTPUTFLAG'] = 'False'
+    os.environ['BWLEN'] = '20' 
     for o, a in opts:
         if o == "-v":
             verbose = True
@@ -362,6 +369,8 @@ def main():
             params = a
         elif o in ("-t"):
             os.environ['ASSETTYPE'] = a
+        elif o in ("-l"):
+            os.environ['BWLEN'] = a
 
     func = runmode + params 
     if runmode in ('result_stats'):
