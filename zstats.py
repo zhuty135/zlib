@@ -101,8 +101,8 @@ def last_day_of_month(any_day):
     return next_month - timedelta(days=next_month.day)
 
 def cal_macro():
-    ofile_list = ['ODSCHG','EDMCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USDCNH','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG'] 
-    columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory','M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M' ]
+    ofile_list = ['M1ADVPPI','ODSCHG','EDMCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG','M1_PPI_CHG'] 
+    columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory','M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M',]
 
     rpath = '/work/' + uname + '/data/raw/'
     rfile = rpath + 'macroraw.csv'
@@ -118,6 +118,9 @@ def cal_macro():
         if f in ['ODSCHG',]:
             df_ratio = df['PMI_NewOrder'][:-1]/df['PMI_GoodsInventory'][:-1]
             df_dif = pd.DataFrame(df_ratio.diff())
+        elif f in ['M1ADVPPI',]:
+            df_ratio = df['M1'][:-1] - df['PPI'][:-1] - df['Industrial_added_value'][:-1]
+            df_dif = pd.DataFrame(df_ratio.diff(periods=12))
         elif f in ['EDMCHG',]:
             df_ratio = df['PMI_NewExportOrder'][:-1]/df['PMI_MaterialInventory'][:-1]
             df_dif = pd.DataFrame(df_ratio.diff())
@@ -136,6 +139,12 @@ def cal_macro():
         elif f in ['M1M2_CHG',]:
             df_ratio = df['M1'].shift(1) - df['M2'].shift(1) 
             df_dif = pd.DataFrame(df_ratio.diff(periods=1))
+        elif f in ['M1_PPI_CHG',]:
+            df_ratio = df['M1'].shift(1) - df['PPI'].shift(1) 
+            df_dif = pd.DataFrame(df_ratio.diff(periods=1))
+        elif f in ['M1M2_CHG3',]:
+            df_ratio = df['M1'].shift(1)
+            df_dif = pd.DataFrame(df_ratio.diff(periods=12))
         elif f in ['CPI_PPI_CHG',]:
             df_ratio = df['CPI'].shift(1) - df['PPI'].shift(1) 
             df_dif = pd.DataFrame(df_ratio.diff(periods=1))
@@ -161,12 +170,14 @@ def cal_macro():
 def get_tickers():
     if os.environ['ASSETTYPE'] == 'cfpa':
         #tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO', 'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO', 'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO', 'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO']
-        tickers = ['CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO','CFCICA.PO', 'CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO','IFIFPA.PO','IFICPA.PO','IFIHPA.PO',]
+        tickers = ['CFSMPA.PO','CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO','CFCICA.PO', 'CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO','IFIFPA.PO','IFICPA.PO','IFIHPA.PO',]
     elif os.environ['ASSETTYPE'] == 'spgs' :
         tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
     elif os.environ['ASSETTYPE'] == 'iv' :
         tickers = ['510050_iv_1m1000.PO','510300_iv_1m1000.PO','sr_iv_1m1000.PO','m_iv_1m1000.PO','c_iv_1m1000.PO','cf_iv_1m1000.PO','cu_iv_1m1000.PO','ma_iv_1m1000.PO','al_iv_1m1000.PO','zc_iv_1m1000.PO','zn_iv_1m1000.PO','ta_iv_1m1000.PO','v_iv_1m1000.PO','pp_iv_1m1000.PO','ru_iv_1m1000.PO','l_iv_1m1000.PO','rm_iv_1m1000.PO','i_iv_1m1000.PO', 
                     '510050_iv_6m1000.PO','510300_iv_6m1000.PO','sr_iv_6m1000.PO','m_iv_6m1000.PO','c_iv_6m1000.PO','cf_iv_6m1000.PO','cu_iv_6m1000.PO','ma_iv_6m1000.PO','al_iv_6m1000.PO','zc_iv_6m1000.PO','zn_iv_6m1000.PO','ta_iv_6m1000.PO','v_iv_6m1000.PO','pp_iv_6m1000.PO','ru_iv_6m1000.PO','l_iv_6m1000.PO','rm_iv_6m1000.PO','i_iv_6m1000.PO',]
+    elif os.environ['ASSETTYPE'] == 'dig' :
+        tickers = ['USO.P','UUP.P','TLT.O','VIG.P', 'VBR.P','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EWY.P','VXX.BAT','KWEB.P','ARKK.P', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','SKYY.O','HYG.P','GSG.P','EWU.P','EWQ.P','EWG.P','EWJ.P','EWS.P','EWA.P','EWZ.P','FXY.P','FXE.P','FXB.P', 'THD.P','TBT.P', ] # 'VNM.P'
     elif os.environ['ASSETTYPE'] == 'idxetf' :
         #tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
         tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','FTSE.GI','SKYY.O','HYG.P','GSG.P','FCHI.GI','VNINDEX.GI','SETI.GI','EWU.P','EWQ.P','EWG.P','EWJ.P','EWS.P','EWA.P','EWZ.P','FXY.P','FXE.P','FXB.P','VNM.P','THD.P','TBT.P', ] 
@@ -244,7 +255,7 @@ def cal_prob():
         output['prob_begin'] = np.round(monthall_1[['month','month_chg_1']].groupby(['month']).apply(prob)['month_chg_1'],2)
         output['std_begin']= np.round(monthall_1[['month','month_chg_1']].groupby(['month']).std(),2)
         if eval(os.environ['OUTPUTFLAG']):
-            output.to_csv('/work/jzhu/output/cal/calendar_'+ticker +'.csv')
+            output.to_csv('/work/jzhu/output/cal/calendar_'+ticker + '.csv' + os.environ['DERIVED'])
         else:
             print(ticker,'\n',output)
         if agg_df is None:
@@ -267,6 +278,7 @@ def convert_to_w(df):
     df['Year'] = df['date'].dt.year
 
     df2 = df.groupby(['Year','Week_Number']).agg({'open':'first', 'high':'max', 'low':'min', 'close':'last','volume':'sum'})
+
     if True:
         df2.to_csv('/tmp/Weekly_OHLC.csv')
     return(df2)
@@ -291,10 +303,18 @@ def get_csv_data(ticker, wflag):
         else:
             ipath += 'idxetf/'
         ifile = ipath + ticker + '.csv'
-        print(ifile)
+        print('input',ifile)
         df = pd.read_csv(ifile)#,index_col = 0,parse_dates=True)
+        if os.environ['DERIVED'] in ['iv30','gex','dpi']  :
+            df['open'] = df[  os.environ['DERIVED']  ] 
+            df['high'] = df[  os.environ['DERIVED']  ] 
+            df['low'] = df[  os.environ['DERIVED']  ] 
+            df['close'] = df[  os.environ['DERIVED']  ] 
+
+
         if wflag:
             dw = convert_to_w(df)
+            dw.dropna(inplace=True)
         else:
             dw = df
 
@@ -323,7 +343,7 @@ def cal_kdj(wflag=True):
     tickers = get_tickers()
     for ticker in tickers:
         dw = get_csv_data(ticker,wflag)
-        print(type(dw['high'].values))
+        #print(type(dw['high'].values))
 
         dw['k'], dw['d'] = talib.STOCH(
             np.double(dw['high'].values), 
@@ -336,7 +356,7 @@ def cal_kdj(wflag=True):
             slowd_matype=0)
         dw['j'] = 3*dw['k']-2*dw['d']
         if eval(os.environ['OUTPUTFLAG']):
-            opath = '/work/jzhu/output/cal/jw_'+ticker +'.csv'
+            opath = '/work/jzhu/output/cal/jw_'+ticker +'.csv' +  os.environ['DERIVED']
             print('output to:', opath)
             dw.to_csv(opath)
         else:
@@ -347,7 +367,7 @@ def cal_kdj(wflag=True):
 def main():
     import getopt, sys
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"m:p:t:l:ov",["mode=", "help"])
+        opts, args = getopt.getopt(sys.argv[1:],"d:m:p:t:l:ov",["mode=", "help"])
     except getopt.GetoptError as err:
         print(str(err))
         usage()
@@ -358,6 +378,7 @@ def main():
     os.environ['ASSETTYPE'] = 'cfpa'
     os.environ['OUTPUTFLAG'] = 'False'
     os.environ['BWLEN'] = '20' 
+    os.environ['DERIVED']  = ''
     for o, a in opts:
         if o == "-v":
             verbose = True
@@ -371,6 +392,8 @@ def main():
             os.environ['ASSETTYPE'] = a
         elif o in ("-l"):
             os.environ['BWLEN'] = a
+        elif o in ("-d"):
+            os.environ['DERIVED']  = a
 
     func = runmode + params 
     if runmode in ('result_stats'):
