@@ -236,10 +236,13 @@ def cal_ixew():
     if True:
         ofile = '/work/' + uname + '/output/ixew/'+ os.environ['ASSETTYPE']  + '.csv'
         if eval(os.environ['OUTPUTFLAG']):
-            #datadf['ixew']= datadf.mean(axis=1) 
-            #odf =  datadf['ixew'] 
-            odf =  datadf.mean(axis=1) 
-            odf.rename( 'CLOSE',inplace=True)
+            datadf['ixew']= datadf.mean(axis=1) 
+            odf = pd.DataFrame()
+            odf['OPEN']  =  datadf['ixew'] 
+            odf['HIGH']  =  datadf['ixew'] 
+            odf['LOW']  =  datadf['ixew'] 
+            odf['CLOSE']  =  datadf['ixew'] 
+            #odf =  datadf.mean(axis=1) 
             odf.to_csv(ofile,date_format='%Y/%m/%d',header=True)
             print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
         else:
