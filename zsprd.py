@@ -12,6 +12,32 @@ from empyrical import sharpe_ratio, annual_return,max_drawdown, cum_returns, ann
 from zutils import get_business_date_list, get_prev_business_date
 from datetime import datetime,date, timedelta
 
+def lgk(res):
+    landa = 0.9049
+    N = 30
+
+    for i in range(31,len(res)):
+        d = res.index[i]
+
+        vega_2 = np.log(res.open.iloc[i]/res.close.iloc[i-1])**2+            0.5* np.log(res.high.iloc[i]/res.low.iloc[i])**2 -            0.39 *np.log(res.close.iloc[i]/res.open.iloc[i])**2
+
+        if i== N+1:
+            r_bar = np.log(res.close).diff().iloc[:i].mean()
+            sig_2 = ((np.log(res.close).diff() - r_bar)**2).iloc[:i].sum()/(N-1)
+
+        else:
+            ln_sig_2 = (1-landa) * np.log(res.vega_2.iloc[i-1]) + landa* np.log(res.sig.iloc[i-1]**2)
+            sig_2 = np.exp(ln_sig_2)
+
+        res.loc[d,'vega_2'] = vega_2
+        res.loc[d,'sig'] = np.sqrt(sig_2)
+    output = res.sig*np.sqrt(252)
+    print('zlib_lgk', output.iloc[-10:])
+    if np.isnan(output.iloc[-10:].sum()):
+        print('lgk bad data:', res.close)
+        assert(0)
+    return(output)
+
 
 def get_max_dd(cumret):
     dd = (np.maximum.accumulate(cumret) - cumret)/np.maximum.accumulate(cumret)
@@ -174,8 +200,8 @@ def get_tickers():
     elif os.environ['ASSETTYPE'] == 'spgs' :
         tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
     elif os.environ['ASSETTYPE'] == 'iv' :
-        tickers = ['510050_iv_1m1000.PO','510300_iv_1m1000.PO','sr_iv_1m1000.PO','m_iv_1m1000.PO','c_iv_1m1000.PO','cf_iv_1m1000.PO','cu_iv_1m1000.PO','ma_iv_1m1000.PO','al_iv_1m1000.PO','zc_iv_1m1000.PO','zn_iv_1m1000.PO','ta_iv_1m1000.PO','v_iv_1m1000.PO','pp_iv_1m1000.PO','ru_iv_1m1000.PO','l_iv_1m1000.PO','rm_iv_1m1000.PO','i_iv_1m1000.PO', 
-                    '510050_iv_6m1000.PO','510300_iv_6m1000.PO','sr_iv_6m1000.PO','m_iv_6m1000.PO','c_iv_6m1000.PO','cf_iv_6m1000.PO','cu_iv_6m1000.PO','ma_iv_6m1000.PO','al_iv_6m1000.PO','zc_iv_6m1000.PO','zn_iv_6m1000.PO','ta_iv_6m1000.PO','v_iv_6m1000.PO','pp_iv_6m1000.PO','ru_iv_6m1000.PO','l_iv_6m1000.PO','rm_iv_6m1000.PO','i_iv_6m1000.PO',]
+        tickers = ['510050_iv_1m1000.PO','510300_iv_1m1000.PO','sr_iv_1m1000.PO','m_iv_1m1000.PO','c_iv_1m1000.PO','cf_iv_1m1000.PO','cu_iv_1m1000.PO','ma_iv_1m1000.PO','al_iv_1m1000.PO','zc_iv_1m1000.PO','zn_iv_1m1000.PO','ta_iv_1m1000.PO','v_iv_1m1000.PO','pp_iv_1m1000.PO','ru_iv_1m1000.PO','l_iv_1m1000.PO','rm_iv_1m1000.PO','i_iv_1m1000.PO','p_iv_1m1000.PO','pg_iv_1m1000.PO','sc_iv_1m1000.PO', 
+                    '510050_iv_6m1000.PO','510300_iv_6m1000.PO','sr_iv_6m1000.PO','m_iv_6m1000.PO','c_iv_6m1000.PO','cf_iv_6m1000.PO','cu_iv_6m1000.PO','ma_iv_6m1000.PO','al_iv_6m1000.PO','zc_iv_6m1000.PO','zn_iv_6m1000.PO','ta_iv_6m1000.PO','v_iv_6m1000.PO','pp_iv_6m1000.PO','ru_iv_6m1000.PO','l_iv_6m1000.PO','rm_iv_6m1000.PO','i_iv_6m1000.PO','p_iv_6m1000.PO','pg_iv_6m1000.PO','sc_iv_6m1000.PO',]
     elif os.environ['ASSETTYPE'] == 'dig' :
         tickers = ['USO.P','UUP.P','TLT.O','VIG.P', 'VBR.P','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EWY.P','VXX.BAT','KWEB.P','ARKK.P', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','SKYY.O','HYG.P','GSG.P','EWU.P','EWQ.P','EWG.P','EWJ.P','EWS.P','EWA.P','EWZ.P','FXY.P','FXE.P','FXB.P', 'THD.P','TBT.P', ] # 'VNM.P'
     elif os.environ['ASSETTYPE'] == 'idxetf' :
@@ -190,6 +216,36 @@ def get_tickers():
         tickers.append(os.environ['ASSETTYPE'] )
     return tickers 
 
+def cal_ixew():
+    datadict = {}
+    ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
+    iv_list = ['al','au','c','cf','cu','i','l','m','ma','pp','rm','ru','sr','ta','v','zc','zn','sc','p','pg']
+
+    mymonth = os.environ['ASSETTYPE'][-2:]   
+    for ticker in iv_list :
+        fpath = ipath + 'iv/'
+        fpath = fpath +  ticker + '_iv_' + mymonth + '1000.PO.csv'
+        print(fpath)
+        data = pd.read_csv(fpath)###bond index
+        data.columns=[name.upper() for name in list(data.columns)]
+        data.index = data['DATE'].apply(pd.to_datetime)
+        datadict[ticker] = data['CLOSE']
+        print(ticker,data.iloc[-1,:])
+
+    datadf = pd.DataFrame.from_dict(datadict,orient='columns')
+    if True:
+        ofile = '/work/' + uname + '/output/ixew/'+ os.environ['ASSETTYPE']  + '.csv'
+        if eval(os.environ['OUTPUTFLAG']):
+            #datadf['ixew']= datadf.mean(axis=1) 
+            #odf =  datadf['ixew'] 
+            odf =  datadf.mean(axis=1) 
+            odf.rename( 'CLOSE',inplace=True)
+            odf.to_csv(ofile,date_format='%Y/%m/%d',header=True)
+            print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
+        else:
+            print('no file output')
+
+    
 def cal_prob():
     tickers = get_tickers() 
 
@@ -320,49 +376,179 @@ def get_csv_data(ticker, wflag):
 
     return dw 
 
-def cal_bb(wflag=True):
+def cal_oldmg(wflag=True):
     tickers = get_tickers()
     for ticker in tickers:
-        tp = eval(os.environ['BWLEN'])
         dw = get_csv_data(ticker,wflag)
-        dw['BolU'], dw['BolM'], dw['BolL'] = talib.BBANDS(
+        tp = 20 
+        dw['BolU20'], dw['BolM20'], dw['BolL20'] = talib.BBANDS(
             np.double(dw['close'].values),
             timeperiod=tp,
             nbdevup=1,
             nbdevdn=1,
             matype=0)
-
-        if eval(os.environ['OUTPUTFLAG']):
-            opath = '/work/jzhu/output/cal/bw' + os.environ['BWLEN'] + '_' +ticker +'.csv'
-            print('output to:', opath)
-            dw.to_csv(opath)
-        else:
-            print(ticker,'\n')
-
-def cal_kdj(wflag=True):
-    tickers = get_tickers()
-    for ticker in tickers:
-        dw = get_csv_data(ticker,wflag)
-        #print(type(dw['high'].values))
-
-        dw['k'], dw['d'] = talib.STOCH(
-            np.double(dw['high'].values), 
-            np.double(dw['low'].values), 
+        tp = 60 
+        dw['BolU60'], dw['BolM60'], dw['BolL60'] = talib.BBANDS(
             np.double(dw['close'].values),
-            fastk_period=9,
-            slowk_period=3,
-            slowk_matype=0,
-            slowd_period=3,
-            slowd_matype=0)
-        dw['j'] = 3*dw['k']-2*dw['d']
+            timeperiod=tp,
+            nbdevup=1,
+            nbdevdn=1,
+            matype=0)
+        tp = 120 
+        dw['BolU120'], dw['BolM120'], dw['BolL120'] = talib.BBANDS(
+            np.double(dw['close'].values),
+            timeperiod=tp,
+            nbdevup=1,
+            nbdevdn=1,
+            matype=0)
+        dw['mg'] =  dw['BolM20'] + dw['BolM60'] + dw['BolM120']
+        print(dw['mg'])
+
         if eval(os.environ['OUTPUTFLAG']):
-            opath = '/work/jzhu/output/cal/jw_'+ticker +'.csv' +  os.environ['DERIVED']
+            opath = '/work/jzhu/output/cal/mg'+ '_' +ticker +'.csv'
             print('output to:', opath)
             dw.to_csv(opath)
         else:
             print(ticker,'\n')
-            print(dw['k'],dw['d'])
-            print(dw['j'])
+
+def cal_cs(nhpath ,ticker):
+    #for ticker in iv_list:
+    if True:
+        np = nhpath +  ticker + '_iv_'+ '1m1000.csv'
+        print(np)
+        iv1m =pd.read_csv(np,encoding='gbk')
+        iv1m['date'] = pd.to_datetime(iv1m['date'], utc=True)
+        iv1m = iv1m.set_index('date')
+        iv1mcls = iv1m['close']
+
+        np = nhpath + ticker + '_iv_'+ '6m1000.csv'
+        print(np)
+        iv6m =pd.read_csv(np,encoding='gbk')
+        iv6m['date'] = pd.to_datetime(iv6m['date'], utc=True)
+        iv6m = iv6m.set_index('date')
+        iv6mcls = iv6m['close']
+        curvespread = (iv6mcls - iv1mcls)
+        opath = '/work/jzhu/output/cal/cs_'+ticker +'.csv' 
+        print('output to:', opath)
+        curvespread.to_csv(opath)
+        print('cal_cs',iv6mcls)
+        #assert(0)
+    return(curvespread, iv1mcls, iv6mcls)
+
+def cal_skw(nhpath ,ticker,tenor):
+    if True:
+        if tenor == '1m':
+            callstrike = '1100'
+            putstrike = '900'
+        else:
+            callstrike = '1050'
+            putstrike = '950'
+        np = nhpath +  ticker + '_iv_'+ tenor + callstrike + '.csv'
+        print(np)
+        iv1m =pd.read_csv(np,encoding='gbk')
+        iv1m['date'] = pd.to_datetime(iv1m['date'], utc=True)
+        iv1m = iv1m.set_index('date')
+        iv1mcls = iv1m['close']
+
+        np = nhpath + ticker + '_iv_'+ tenor + putstrike + '.csv'
+        print(np)
+        iv6m =pd.read_csv(np,encoding='gbk')
+        iv6m['date'] = pd.to_datetime(iv6m['date'], utc=True)
+        iv6m = iv6m.set_index('date')
+        iv6mcls = iv6m['close']
+        curvespread = (iv6mcls - iv1mcls)
+        opath = '/work/jzhu/output/cal/skw_'+ticker +'.csv' 
+        print('output to:', opath)
+        curvespread.to_csv(opath)
+    return(curvespread)
+
+def cal_mas(clspx):
+    ma5   = clspx.rolling(5).mean()
+    ma10  = clspx.rolling(10).mean()
+    ma20  = clspx.rolling(20).mean()
+    ma50  = clspx.rolling(40).mean()
+    ma60  = clspx.rolling(60).mean()
+    ma120 = clspx.rolling(120).mean()
+    ma200 = clspx.rolling(200).mean()
+    return(ma5,  ma10, ma20,  ma50, ma60, ma120, ma200)
+
+
+def cal_mg(ma5,  ma10, ma20,  ma40, ma60, ma120, ma200):
+    mg1 =  ma5 - ma10
+    mg2 =  ma5 - ma20
+    mg3 =  ma5 - ma40
+    mg4 =  ma5 - ma60
+    mg5 =  ma5 - ma120
+    mg6 =  ma5 - ma200
+
+    mg7 =  ma10 - ma20
+    mg8 =  ma10 - ma40
+    mg9 =  ma10 - ma60
+    mg10=  ma10 - ma120
+    mg11=  ma10 - ma200
+
+    mg12=  ma20 - ma40
+    mg13=  ma20 - ma60
+    mg14=  ma20 - ma120
+    mg15=  ma20 - ma200
+
+    mg16=  ma40 - ma60
+    mg17=  ma40 - ma120
+    mg18=  ma40 - ma200
+
+    mg19=  ma60 - ma120
+    mg20=  ma60 - ma200
+
+    mg21=  ma120 - ma200
+
+    n = 2
+    mgsum = 0
+    for i in range(1,22):
+        tmpstr = 'mg' + str(i)
+        #print(tmpstr,eval(tmpstr))
+        mgsum += eval(tmpstr)**n
+    mgavg= np.sqrt(mgsum)
+    return(mgavg)
+
+def cal_vg(NHF,index):
+    clspx = np.log(NHF['close']).diff()
+    rv20 =  clspx.rolling(20).std()
+    rv40 =  clspx.rolling(40).std()
+    rv60 =  clspx.rolling(60).std()
+    rv120 = clspx.rolling(120).std()
+    rv200 = clspx.rolling(200).std()
+    rvlgk = lgk(NHF)#clspx.rolling(10).std()#lgk(NHF)
+    #print('rvlgk',rvlgk)
+    vg1 = rv20 - rv40
+    vg2 = rv20 - rv60
+    vg3 = rv20 - rv120
+    vg4 = rv20 - rv200
+    vg5 = rv20 - rvlgk
+
+    vg6 = rv40 - rv60
+    vg7 = rv40 - rv120
+    vg8 = rv40 - rv200
+    vg9 = rv40 - rvlgk
+
+    vg10= rv60 - rv120
+    vg11= rv60 - rv200
+    vg12= rv60 - rvlgk
+
+    vg13= rv120 - rv200
+    vg14= rv120 - rvlgk
+
+    vg15= rv200 - rvlgk
+
+    vgsum = 0
+    for i in range(1,16) :
+        tmpstr = 'vg' + str(i)
+        #print(tmpstr,eval(tmpstr))
+        vgsum += eval(tmpstr)**2
+    vgavg= np.sqrt(vgsum)
+    pcat = pd.concat([rv40, rv60, rv120, rv200, rv20,rvlgk], axis =1 )
+    vgmin = pcat.max(axis=1)
+    return(vgavg,vgmin)
+
     
 def main():
     import getopt, sys
