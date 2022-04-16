@@ -224,13 +224,33 @@ def cal_ixew():
     mymonth = os.environ['ASSETTYPE'][-2:]   
     for ticker in iv_list :
         fpath = ipath + 'iv/'
-        fpath = fpath +  ticker + '_iv_' + mymonth + '1000.PO.csv'
-        print(fpath)
-        data = pd.read_csv(fpath)###bond index
-        data.columns=[name.upper() for name in list(data.columns)]
-        data.index = data['DATE'].apply(pd.to_datetime)
-        datadict[ticker] = data['CLOSE']
-        print(ticker,data.iloc[-1,:])
+        if os.environ['ASSETTYPE'].split('.')[1] == 'sk':
+            tmpdf = cal_skw('/work/jzhu/input/iv/',ticker,mymonth)
+            datadict[ticker] = tmpdf
+        elif os.environ['ASSETTYPE'].split('.')[1] == 'bfly':
+            tmpdf = cal_skw('/work/jzhu/input/iv/',ticker,mymonth,cstype='bfly')
+            datadict[ticker] = tmpdf
+        elif os.environ['ASSETTYPE'].split('.')[1] == 'cs':
+            curvespread, iv1mcls, iv6mcls = cal_cs('/work/jzhu/input/iv/',ticker)
+            datadict[ticker] = curvespread 
+
+        elif os.environ['ASSETTYPE'].split('.')[1] == 'corr':
+            curvespread, iv1mcls, iv6mcls = cal_cs('/work/jzhu/input/iv/',ticker)
+            cordf = iv1mcls.rolling(21).corr(iv6mcls)*100
+            datadict[ticker] = cordf 
+
+        elif os.environ['ASSETTYPE'].split('.')[1] == 'iv':
+            fpath = fpath +  ticker + '_iv_' + mymonth + '1000.PO.csv'
+            print(fpath)
+            data = pd.read_csv(fpath)###bond index
+            data.columns=[name.upper() for name in list(data.columns)]
+            data.index = data['DATE'].apply(pd.to_datetime)
+            datadict[ticker] = data['CLOSE']
+            print(ticker,data.iloc[-1,:])
+        else:
+            print('wrong ASSETTYPE')
+            assert(0)
+
 
     datadf = pd.DataFrame.from_dict(datadict,orient='columns')
     if True:
@@ -438,7 +458,7 @@ def cal_cs(nhpath ,ticker):
         #assert(0)
     return(curvespread, iv1mcls, iv6mcls)
 
-def cal_skw(nhpath ,ticker,tenor):
+def cal_skw(nhpath ,ticker,tenor,cstype='cs'):
     if True:
         if tenor == '1m':
             callstrike = '1100'
@@ -459,7 +479,15 @@ def cal_skw(nhpath ,ticker,tenor):
         iv6m['date'] = pd.to_datetime(iv6m['date'], utc=True)
         iv6m = iv6m.set_index('date')
         iv6mcls = iv6m['close']
+
+        np = nhpath + ticker + '_iv_'+ tenor +  '1000.csv'
+        print(np)
+        ivatm =pd.read_csv(np,encoding='gbk')
+        ivatm['date'] = pd.to_datetime(ivatm['date'], utc=True)
+        ivatm= ivatm.set_index('date')
         curvespread = (iv6mcls - iv1mcls)
+        if  cstype == 'bfly':
+            curvespread = (iv6mcls + iv1mcls - ivatm['close'] )
         opath = '/work/jzhu/output/cal/skw_'+ticker +'.csv' 
         print('output to:', opath)
         curvespread.to_csv(opath)
