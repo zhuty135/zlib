@@ -261,7 +261,10 @@ def cal_crv():
     if os.environ['ASSETTYPE'].split('.')[2] == 'cov':
         corsum = retdf.rolling(21).cov().sum(axis=1)
     elif os.environ['ASSETTYPE'].split('.')[2] == 'corr':
-        corsum = retdf.rolling(21).corr().sum(axis=1)
+        corrwl = 21
+        if myassettype in ('nh','hz','ta'):
+            corrwl = 63
+        corsum = retdf.rolling(corrwl).corr().sum(axis=1)
     else:
         assert(0)
 
@@ -311,6 +314,14 @@ def cal_ixew():
         elif os.environ['ASSETTYPE'].split('.')[1] == 'corr':
             curvespread, iv1mcls, iv6mcls = cal_cs('/work/jzhu/input/iv/',ticker)
             cordf = iv1mcls.rolling(21).corr(iv6mcls)*100
+            datadict[ticker] = cordf 
+
+        elif os.environ['ASSETTYPE'].split('.')[1] == 'viv':
+            curvespread, iv1mcls, iv6mcls = cal_cs('/work/jzhu/input/iv/',ticker)
+            if mymonth == '1m':
+                cordf = iv1mcls.rolling(21).std()
+            elif mymonth == '6m':
+                cordf = iv6mcls.rolling(21).std()
             datadict[ticker] = cordf 
 
         elif os.environ['ASSETTYPE'].split('.')[1] == 'iv':
