@@ -216,10 +216,84 @@ def get_tickers():
         tickers.append(os.environ['ASSETTYPE'] )
     return tickers 
 
+pz_code= {'NH0100.NHF':'NH0100.NHF','a':'NH0001.NHF', 'y':'NH0002.NHF', 'c':'NH0003.NHF', 'l':'NH0004.NHF', 'cf':'NH0006.NHF', 'sr':'NH0007.NHF', 'au':'NH0008.NHF', 'zn':'NH0009.NHF', 'fu':'NH0010.NHF', 'ta':'NH0011.NHF', 'cu':'NH0012.NHF', 'al':'NH0013.NHF', 'ru':'NH0014.NHF', 'm':'NH0015.NHF', 'rb':'NH0016.NHF', 'wr':'NH0017.NHF', 'v':'NH0019.NHF', 'oi':'NH0020.NHF', 'p':'NH0021.NHF', 'k':'NH0022.NHF', 'pb':'NH0023.NHF', 'ma':'NH0024.NHF', 'ag':'NH0025.NHF', 'fg':'NH0026.NHF', 'rs':'NH0027.NHF', 'rm':'NH0028.NHF', 'jm':'NH0029.NHF', 'zc':'NH0030.NHF', 'bu':'NH0031.NHF', 'i':'NH0032.NHF', 'jd':'NH0033.NHF', 'pp':'NH0037.NHF', 'b':'NH0047.NHF', 'pg':'NH0052.NHF', 'cs':'NHCS.NHF','sc':'NH0041.NHF'}
+
+
+def cal_crv():
+    datadict = {}
+    ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
+    myassettype =  os.environ['ASSETTYPE'].split('.')[0] #os.environ['ASSETTYPE'][0:2]
+    if  myassettype == 'nh' :
+        iv_list = ['al','au','c','cf','cu','i','l','m','ma','pp','rm','ru','sr','ta','v','zc','zn','sc','p','pg']
+    elif  myassettype  == 'hz' :
+        iv_list = ['000986.SH','000987.SH','000988.SH','000989.SH','000990.SH','000991.SH','000992.SH','000993.SH','000994.SH','000995.SH']
+    elif  myassettype  == 'ta' :
+        iv_list = ['NH0100.NHF', 'TFTFPA.PO','000016.SH','399300.SZ']
+
+    for ticker in iv_list :
+        if os.environ['ASSETTYPE'].split('.')[1] == 'sect':
+            fpath = ipath #+ os.environ['ASSETTYPE'].split('.')[0]  + '/'
+            if re.match(r'.*\.P$',ticker) or  re.match(r'.*\.O$',ticker) or  re.match(r'.*\.GI$',ticker) or  re.match(r'.*\.FX$',ticker)  or  re.match(r'.*\.BAT$',ticker) or  re.match(r'.*\.HI$',ticker) or  re.match(r'.*\.CME$',ticker)  :
+                fpath = fpath + 'idxetf/' +  ticker + '.csv'
+            elif re.match(r'.*\.SH$',ticker) or re.match(r'.*\.SZ$',ticker):
+                fpath = fpath + 'hz/' +  ticker + '.csv'
+            elif  re.match(r'.*\.TR$',ticker):
+                inputpath = '/work/jzhu/project/ql/data/'
+            elif re.match(r'.*\.NHF$',ticker) or re.match(r'.*\.NM',ticker):
+                fpath = fpath + 'nh/' +  pz_code[ticker] + '.csv'
+            else:
+                if myassettype == 'nh':
+                    fpath = fpath + 'nh/' +  pz_code[ticker] + '.csv'
+                else:
+                    fpath = "/work/jzhu/data/pol/Index/" +  ticker + '.csv'
+
+            print(fpath)
+            data = pd.read_csv(fpath)###bond index
+            data.columns=[name.upper() for name in list(data.columns)]
+            data.index = data['DATE'].apply(pd.to_datetime)
+            datadict[ticker] = data['CLOSE'][-1500:]
+            print(ticker,data.iloc[-1,:])
+
+    datadf = pd.DataFrame.from_dict(datadict,orient='columns')
+
+    retdf = np.log(datadf).diff()
+
+    if os.environ['ASSETTYPE'].split('.')[2] == 'cov':
+        corsum = retdf.rolling(21).cov().sum(axis=1)
+    elif os.environ['ASSETTYPE'].split('.')[2] == 'corr':
+        corsum = retdf.rolling(21).corr().sum(axis=1)
+    else:
+        assert(0)
+
+    #testdf = [ corsum.loc[:,iv_list] for i in corsum.index]
+    print('realcal')
+    for i in corsum.index:
+        tmpvalue =  corsum.loc[i,iv_list].sum()
+        datadf.loc[i[0],'sum'] = tmpvalue 
+    tmpsum  = datadf['sum']
+
+    if True:
+        ofile = '/work/' + uname + '/output/ixew/'+ os.environ['ASSETTYPE']  + '.csv'
+        if eval(os.environ['OUTPUTFLAG']):
+            datadf['ixew']= tmpsum
+            odf = pd.DataFrame()
+            odf['OPEN']  =  datadf['ixew']
+            odf['HIGH']  =  datadf['ixew']
+            odf['LOW']  =  datadf['ixew']
+            odf['CLOSE']  =  datadf['ixew']
+            #odf =  datadf.mean(axis=1)
+            odf.to_csv(ofile,date_format='%Y/%m/%d',header=True)
+            print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
+        else:
+            print('no file output')
+
 def cal_ixew():
     datadict = {}
     ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
-    iv_list = ['al','au','c','cf','cu','i','l','m','ma','pp','rm','ru','sr','ta','v','zc','zn','sc','p','pg']
+    if  os.environ['ASSETTYPE'][0:2] == 'nh' :
+        iv_list = ['al','au','c','cf','cu','i','l','m','ma','pp','rm','ru','sr','ta','v','zc','zn','sc','p','pg']
+    elif  os.environ['ASSETTYPE'][0:2] == 'hz' :
+        iv_list = [ '510050','510300']#,'000300' ]
 
     mymonth = os.environ['ASSETTYPE'][-2:]   
     for ticker in iv_list :
@@ -251,7 +325,7 @@ def cal_ixew():
             print('wrong ASSETTYPE')
             assert(0)
 
-
+    print(datadict)
     datadf = pd.DataFrame.from_dict(datadict,orient='columns')
     if True:
         ofile = '/work/' + uname + '/output/ixew/'+ os.environ['ASSETTYPE']  + '.csv'
