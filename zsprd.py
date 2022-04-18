@@ -228,17 +228,25 @@ def cal_crv():
     elif  myassettype  == 'hz' :
         iv_list = ['000986.SH','000987.SH','000988.SH','000989.SH','000990.SH','000991.SH','000992.SH','000993.SH','000994.SH','000995.SH']
     elif  myassettype  == 'ta' :
-        iv_list = ['NH0100.NHF', 'TFTFPA.PO','000016.SH','399300.SZ']
+        iv_list = ['NH0100.NHF', 'TFTFPA.PO','000016.SH','399300.SZ','UUP.P']
+    elif  myassettype  == 'gtaa' :
+        iv_list = ['GSG.P', 'TLT.O','UUP.P','SPY.P','EEM.P','EFA.P','HYG.P','EWY.P','VIX.GI','N225.GI','NDX.GI','HSI.HI','EURUSD.FX','INDA.BAT','AS51.GI', 'IYR.P']
+    elif  myassettype  == 'xt' :
+        iv_list = ['XT.O','HACK.P','KWEB.P','ARKK.P', 'LIT.P','TAN.P','SNSR.O','BOTZ.O','SKYY.O' ] 
+    elif  myassettype  == 'xl' :
+        iv_list = [ 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','XLK.P']
+    elif  myassettype  == 'spgs' :
+        iv_list = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSSI.TR',]#'SPGSCI.TR',  'SPGSEN.TR',  'SPGSPT.TR',  'SPGSRE.TR', 'SPGSLV.TR', 
 
     for ticker in iv_list :
         if os.environ['ASSETTYPE'].split('.')[1] == 'sect':
-            fpath = ipath #+ os.environ['ASSETTYPE'].split('.')[0]  + '/'
+            fpath = ipath 
             if re.match(r'.*\.P$',ticker) or  re.match(r'.*\.O$',ticker) or  re.match(r'.*\.GI$',ticker) or  re.match(r'.*\.FX$',ticker)  or  re.match(r'.*\.BAT$',ticker) or  re.match(r'.*\.HI$',ticker) or  re.match(r'.*\.CME$',ticker)  :
                 fpath = fpath + 'idxetf/' +  ticker + '.csv'
             elif re.match(r'.*\.SH$',ticker) or re.match(r'.*\.SZ$',ticker):
                 fpath = fpath + 'hz/' +  ticker + '.csv'
             elif  re.match(r'.*\.TR$',ticker):
-                inputpath = '/work/jzhu/project/ql/data/'
+                fpath = fpath + 'global/' +  ticker + '.csv'
             elif re.match(r'.*\.NHF$',ticker) or re.match(r'.*\.NM',ticker):
                 fpath = fpath + 'nh/' +  pz_code[ticker] + '.csv'
             else:
@@ -248,6 +256,7 @@ def cal_crv():
                     fpath = "/work/jzhu/data/pol/Index/" +  ticker + '.csv'
 
             print(fpath)
+
             data = pd.read_csv(fpath)###bond index
             data.columns=[name.upper() for name in list(data.columns)]
             data.index = data['DATE'].apply(pd.to_datetime)
@@ -259,7 +268,7 @@ def cal_crv():
     retdf = np.log(datadf).diff()
 
     if os.environ['ASSETTYPE'].split('.')[2] == 'cov':
-        corsum = retdf.rolling(21).cov().sum(axis=1)
+        corsum = np.sqrt(retdf.rolling(21).cov().sum(axis=1))
     elif os.environ['ASSETTYPE'].split('.')[2] == 'corr':
         corrwl = 21
         if myassettype in ('nh','hz','ta'):
@@ -339,7 +348,7 @@ def cal_ixew():
                 cordf = iv6mcls.rolling(21).std()
             datadict[ticker] = cordf 
     
-            opath =  '/work/' + uname + '/output/ixew/viv.' + ticker  + '.csv' 
+            opath =  '/work/' + uname + '/output/ixew/viv.' + ticker  + '.' + mymonth +'.csv' 
             print(cordf)
             output_to_csv(opath,cordf,'')
 
