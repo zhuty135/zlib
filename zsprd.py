@@ -290,6 +290,21 @@ def cal_crv():
         else:
             print('no file output')
 
+def output_to_csv(opath,datadf,fld):
+    if True:
+        ofile = opath
+        if eval(os.environ['OUTPUTFLAG']):
+            odf = pd.DataFrame()
+            odf['OPEN']  = datadf if fld == '' else datadf[fld] 
+            odf['HIGH']  = datadf if fld == '' else  datadf[fld] 
+            odf['LOW']   = datadf if fld == '' else datadf[fld] 
+            odf['CLOSE']  = datadf if fld == '' else datadf[fld] 
+            #odf =  datadf.mean(axis=1) 
+            odf.to_csv(ofile,date_format='%Y/%m/%d',header=True)
+            print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
+        else:
+            print('no file output')
+
 def cal_ixew():
     datadict = {}
     ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
@@ -323,6 +338,10 @@ def cal_ixew():
             elif mymonth == '6m':
                 cordf = iv6mcls.rolling(21).std()
             datadict[ticker] = cordf 
+    
+            opath =  '/work/' + uname + '/output/ixew/viv.' + ticker  + '.csv' 
+            print(cordf)
+            output_to_csv(opath,cordf,'')
 
         elif os.environ['ASSETTYPE'].split('.')[1] == 'iv':
             fpath = fpath +  ticker + '_iv_' + mymonth + '1000.PO.csv'
@@ -338,20 +357,10 @@ def cal_ixew():
 
     print(datadict)
     datadf = pd.DataFrame.from_dict(datadict,orient='columns')
-    if True:
-        ofile = '/work/' + uname + '/output/ixew/'+ os.environ['ASSETTYPE']  + '.csv'
-        if eval(os.environ['OUTPUTFLAG']):
-            datadf['ixew']= datadf.mean(axis=1) 
-            odf = pd.DataFrame()
-            odf['OPEN']  =  datadf['ixew'] 
-            odf['HIGH']  =  datadf['ixew'] 
-            odf['LOW']  =  datadf['ixew'] 
-            odf['CLOSE']  =  datadf['ixew'] 
-            #odf =  datadf.mean(axis=1) 
-            odf.to_csv(ofile,date_format='%Y/%m/%d',header=True)
-            print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
-        else:
-            print('no file output')
+    datadf['ixew']= datadf.mean(axis=1) 
+    opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.csv' 
+    output_to_csv(opath,datadf,'ixew')
+
 
     
 def cal_prob():
