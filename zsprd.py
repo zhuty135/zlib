@@ -38,16 +38,6 @@ def lgk(res):
         assert(0)
     return(output)
 
-
-def get_max_dd(cumret):
-    dd = (np.maximum.accumulate(cumret) - cumret)/np.maximum.accumulate(cumret)
-    return np.max(dd)
-
-def get_sharpe(returns, rf=0, days=252):
-    volatility = returns.std()
-    sharpe_ratio = (returns.mean() - rf) / volatility * np.sqrt(days)
-    return sharpe_ratio
-
 def result_stats(perf,verbose=False):
     if isinstance(perf,str):
         perf = pd.read_pickle(perf)
@@ -227,12 +217,20 @@ def cal_crv():
         iv_list = ['al','au','c','cf','cu','i','l','m','ma','pp','rm','ru','sr','ta','v','zc','zn','sc','p','pg']
     elif  myassettype  == 'hz' :
         iv_list = ['000986.SH','000987.SH','000988.SH','000989.SH','000990.SH','000991.SH','000992.SH','000993.SH','000994.SH','000995.SH']
-    elif  myassettype  == 'ta' :
+    elif  myassettype  == 'dtta' :
         iv_list = ['NH0100.NHF', 'TFTFPA.PO','000016.SH','399300.SZ','UUP.P']
     elif  myassettype  == 'gtaa' :
-        iv_list = ['GSG.P', 'TLT.O','UUP.P','SPY.P','EEM.P','EFA.P','HYG.P','EWY.P','VIX.GI','N225.GI','NDX.GI','HSI.HI','EURUSD.FX','INDA.BAT','AS51.GI', 'IYR.P']
+        iv_list = ['GSG.P', 'TLT.O','UUP.P','SPY.P','EEM.P','EFA.P','HYG.P','VIX.GI','N225.GI','NDX.GI','BTC.CME','EURUSD.FX', 'IYR.P']
+
+    elif  myassettype  == 'dm' :
+        iv_list = ['SPY.P','EFA.P','N225.GI','NDX.GI','GDAXI.GI','FCHI.GI','FTSE.GI']
+    elif  myassettype  == 'em' :
+        iv_list = ['EEM.P','KS11.GI','HSI.HI','INDA.BAT','AS51.GI', 'IBOVESPA.GI','SETI.GI','VNINDEX.GI']
+    elif  myassettype  == 'icln' :
+        iv_list = ['LIT.P','TAN.P','SNSR.O','XBI.P','ICLN.O' ] 
     elif  myassettype  == 'xt' :
-        iv_list = ['XT.O','HACK.P','KWEB.P','ARKK.P', 'LIT.P','TAN.P','SNSR.O','BOTZ.O','SKYY.O' ] 
+        iv_list = ['XT.O','HACK.P','ARKK.P', 'GAMR.P','SNSR.O','BOTZ.O','SKYY.O','ESPO.O' ] 
+
     elif  myassettype  == 'xl' :
         iv_list = [ 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','XLK.P']
     elif  myassettype  == 'spgs' :
