@@ -339,7 +339,8 @@ def cal_ixew():
             datadict[ticker] = cordf 
 
         elif os.environ['ASSETTYPE'].split('.')[1] == 'viv':
-            curvespread, iv1mcls, iv6mcls = cal_cs('/work/jzhu/input/iv/',ticker)
+            #curvespread, iv1mcls, iv6mcls = cal_cs('/work/jzhu/input/iv/',ticker)
+            curvespread, iv1mcls, iv6mcls = cal_cs('/work/jzhu/data/pol/work/jzhu/input/iv/',ticker,poflag=True)
             if mymonth == '1m':
                 cordf = iv1mcls.rolling(21).std()
             elif mymonth == '6m':
@@ -535,17 +536,24 @@ def cal_oldmg(wflag=True):
         else:
             print(ticker,'\n')
 
-def cal_cs(nhpath ,ticker):
+def cal_cs(nhpath ,ticker,poflag=False):
     #for ticker in iv_list:
     if True:
-        np = nhpath +  ticker + '_iv_'+ '1m1000.csv'
+        if poflag:
+            np = nhpath +  ticker + '_iv_'+ '1m1000.PO.csv'
+        else:
+            np = nhpath +  ticker + '_iv_'+ '1m1000.csv'
         print(np)
         iv1m =pd.read_csv(np,encoding='gbk')
         iv1m['date'] = pd.to_datetime(iv1m['date'], utc=True)
         iv1m = iv1m.set_index('date')
         iv1mcls = iv1m['close']
 
-        np = nhpath + ticker + '_iv_'+ '6m1000.csv'
+        if poflag:
+            np = nhpath + ticker + '_iv_'+ '6m1000.PO.csv'
+        else:
+            np = nhpath + ticker + '_iv_'+ '6m1000.csv'
+
         print(np)
         iv6m =pd.read_csv(np,encoding='gbk')
         iv6m['date'] = pd.to_datetime(iv6m['date'], utc=True)
