@@ -186,7 +186,7 @@ def cal_usmacro():
 def get_tickers():
     if os.environ['ASSETTYPE'] == 'cfpa':
         #tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO', 'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO', 'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO', 'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO']
-        tickers = ['CFSMPA.PO','CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO','CFCICA.PO', 'CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO','IFIFPA.PO','IFICPA.PO','IFIHPA.PO',]
+        tickers = ['CFSMPA.PO','CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO','CFCICA.PO',  'CFFMSA.PO', 'CFPMSA.PO','CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO','IFIFPA.PO','IFICPA.PO','IFIHPA.PO',]
     elif os.environ['ASSETTYPE'] == 'spgs' :
         tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
     elif os.environ['ASSETTYPE'] == 'iv' :
@@ -215,13 +215,14 @@ def cal_crv():
     myassettype =  os.environ['ASSETTYPE'].split('.')[0] #os.environ['ASSETTYPE'][0:2]
     if  myassettype == 'nh' :
         iv_list = ['al','au','c','cf','cu','i','l','m','ma','pp','rm','ru','sr','ta','v','zc','zn','sc','p','pg']
+    elif  myassettype  == 'cfsa' :
+        iv_list = ['CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO']
     elif  myassettype  == 'hz' :
         iv_list = ['000986.SH','000987.SH','000988.SH','000989.SH','000990.SH','000991.SH','000992.SH','000993.SH','000994.SH','000995.SH']
     elif  myassettype  == 'dtta' :
         iv_list = ['NH0100.NHF', 'TFTFPA.PO','000016.SH','399300.SZ','UUP.P']
     elif  myassettype  == 'gtaa' :
         iv_list = ['GSG.P', 'TLT.O','UUP.P','SPY.P','EEM.P','EFA.P','HYG.P','VIX.GI','N225.GI','NDX.GI','BTC.CME','EURUSD.FX', 'IYR.P']
-
     elif  myassettype  == 'dm' :
         iv_list = ['SPY.P','EFA.P','N225.GI','NDX.GI','GDAXI.GI','FCHI.GI','FTSE.GI']
     elif  myassettype  == 'em' :
@@ -269,7 +270,7 @@ def cal_crv():
         corsum = np.sqrt(retdf.rolling(21).cov().sum(axis=1))
     elif os.environ['ASSETTYPE'].split('.')[2] == 'corr':
         corrwl = 21
-        if myassettype in ('nh','hz','ta'):
+        if myassettype in ('nh','hz','ta','cfsa'):
             corrwl = 63
         corsum = retdf.rolling(corrwl).corr().sum(axis=1)
     else:
@@ -311,6 +312,82 @@ def output_to_csv(opath,datadf,fld):
             print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
         else:
             print('no file output')
+
+def cal_csab():
+    datacsdict = {}
+    rvdict ={}
+    fpath = '/work/' + uname + '/data/pol/Index/'
+    if  os.environ['ASSETTYPE'][0:2] == 'nh' :
+        iv_list =  ['CFSMPA.PO','CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO'] #'CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO',
+    elif  os.environ['ASSETTYPE'][0:2] == 'hz' :
+        iv_list =  [ 'IFIFPA.PO','IFICPA.PO','IFIHPA.PO',] 
+    elif  os.environ['ASSETTYPE'][0:2] == 'tf' :
+        iv_list =  [ 'TFTFPA.PO','TFTSPA.PO','TFTPA.PO'] 
+    for i in iv_list: 
+        datadict = {}
+        if True:
+            ipath =  fpath + i + '.csv'
+            print(ipath)
+            data = pd.read_csv(ipath)
+            data.columns=[name.upper() for name in list(data.columns)]
+            data.index = data['DATE'].apply(pd.to_datetime)
+            datadict[i] = data['CLOSE']
+
+            j = i.replace('A.PO','B.PO')
+            ipath =  fpath + j + '.csv'
+            print(ipath)
+            data = pd.read_csv(ipath)
+            data.columns=[name.upper() for name in list(data.columns)]
+            data.index = data['DATE'].apply(pd.to_datetime)
+            datadict[j] = data['CLOSE']
+    
+            tmpdf = pd.DataFrame.from_dict(datadict,orient='columns')
+            tmpcsdf = tmpdf[j] / tmpdf[i]
+
+            datacsdict[i] = tmpcsdf#datadict[j] - datadict[i] 
+            opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.' + i.split('.')[0] + '.csv'
+            output_to_csv(opath,tmpcsdf,'')
+
+            rvdict[i] = tmpcsdf.rolling(21).std()
+            #rvdict[i] = lgk(tmpcsdf)
+            opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.' +  i.split('.')[0] + '.rv.csv'
+            output_to_csv(opath,rvdict[i] ,'')
+            
+
+    datadf = pd.DataFrame.from_dict(datacsdict,orient='columns')
+    datadfmean = datadf.mean(axis=1)
+    opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.csv'
+    output_to_csv(opath,datadfmean,'')
+
+    rvdf = pd.DataFrame.from_dict(rvdict,orient='columns').mean(axis=1)
+    opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.rv.csv'
+    output_to_csv(opath,rvdf,'')
+
+    datadfcorr = datadf.diff().rolling(21).corr().sum(axis=1)
+    opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.corr.csv'
+    output_to_csv(opath,datadfcorr,'')
+
+def cal_hr():
+    pathdict = {'VIX.GI':'/work/' + uname + '/input/idxetf/','hz.iv.1m':'/work/jzhu/output/ixew/','nh.iv.6m':'/work/jzhu/output/ixew/'}
+    datadict = {}
+    for i in ['VIX.GI','hz.iv.1m','nh.iv.6m']:
+        if True:
+            fpath = pathdict[i] + i + '.csv'
+            data = pd.read_csv(fpath)
+            data.columns=[name.upper() for name in list(data.columns)]
+            data.index = data['DATE'].apply(pd.to_datetime)
+            datadict[i] = data['CLOSE']
+
+    datadf = pd.DataFrame.from_dict(datadict,orient='columns')
+    if  os.environ['ASSETTYPE'] == 'iv_sp_hz':
+        datadf['ixew']= datadf['VIX.GI'] /  datadf['hz.iv.1m']
+    elif  os.environ['ASSETTYPE'] == 'iv_nh_hz':
+        datadf['ixew']= datadf['nh.iv.6m'] /  datadf['hz.iv.1m']#.fillna(method='ffill')# ,limit=10)
+    opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.csv'
+    output_to_csv(opath,datadf,'ixew')
+
+
+    
 
 def cal_ixew():
     datadict = {}
