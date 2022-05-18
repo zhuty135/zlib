@@ -117,59 +117,24 @@ def last_day_of_month(any_day):
     return next_month - timedelta(days=next_month.day)
 
 def cal_usmacro():
-    ofile_list = ['M1ADVPPI','ODSCHG','EDMCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG','M1_PPI_CHG'] 
-    columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory','M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M',]
+    #ofile_list = ['M1ADVPPI','ODSCHG','EDMCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG','M1_PPI_CHG'] 
+    ofile_list = ['ODSCHG']
+    columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory']#,'M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M',]
 
     rpath = '/work/' + uname + '/data/raw/'
-    rfile = rpath + 'macroraw.csv'
+    rfile = rpath + 'pmi.csv'
     df = pd.read_csv(rfile,index_col = 0,parse_dates=True)
     lastdt = df.index[-1]
     lastdt = last_day_of_month(lastdt +  timedelta(days=7))
     df.loc[lastdt] = df.iloc[-1]
 
     for f in ofile_list:
-        ofile = '/work/' + uname + '/output/macro/'+ f + '.csv'
+        ofile = '/work/' + uname + '/output/macro/us_'+ f + '.csv'
         df_ratio = None
         df_dif = None
         if f in ['ODSCHG',]:
             df_ratio = df['PMI_NewOrder'][:-1]/df['PMI_GoodsInventory'][:-1]
             df_dif = pd.DataFrame(df_ratio.diff())
-        elif f in ['M1ADVPPI',]:
-            df_ratio = df['M1'][:-1] - df['PPI'][:-1] - df['Industrial_added_value'][:-1]
-            df_dif = pd.DataFrame(df_ratio.diff(periods=12))
-        elif f in ['EDMCHG',]:
-            df_ratio = df['PMI_NewExportOrder'][:-1]/df['PMI_MaterialInventory'][:-1]
-            df_dif = pd.DataFrame(df_ratio.diff())
-        elif f in ['MGPCHG',]:
-            #df_ratio = df['PMI_MaterialInventory'][:-1]/df['PMI_NewOrder'][:-1]
-            df_ratio = df['PMI_MaterialInventory'][:-1]/df['PMI_GoodsInventory'][:-1]
-            #df_ratio = df['PMI_MaterialInventory'][:-1]/df['PMI_Production'][:-1]
-            #PMI,PMI_Production,PMI_NewOrder,PMI_NewExportOrder,PMI_GoodsInventory,PMI_MaterialInventory,
-            df_dif = pd.DataFrame(df_ratio.diff())
-        elif f in ['ADDVALUE_CHG',]:
-            df_ratio = df['Industrial_added_value'].shift(1)
-            df_dif = pd.DataFrame(df_ratio.diff(periods=12))
-        elif f in ['DEBTCHG_YEAR',]:
-            df_ratio = df['RMBloan'].shift(1)
-            df_dif = pd.DataFrame(df_ratio.diff(periods=12))
-        elif f in ['M1M2_CHG',]:
-            df_ratio = df['M1'].shift(1) - df['M2'].shift(1) 
-            df_dif = pd.DataFrame(df_ratio.diff(periods=1))
-        elif f in ['M1_PPI_CHG',]:
-            df_ratio = df['M1'].shift(1) - df['PPI'].shift(1) 
-            df_dif = pd.DataFrame(df_ratio.diff(periods=1))
-        elif f in ['M1M2_CHG3',]:
-            df_ratio = df['M1'].shift(1)
-            df_dif = pd.DataFrame(df_ratio.diff(periods=12))
-        elif f in ['CPI_PPI_CHG',]:
-            df_ratio = df['CPI'].shift(1) - df['PPI'].shift(1) 
-            df_dif = pd.DataFrame(df_ratio.diff(periods=1))
-
-        elif f in ['SHIBOR3M',]:
-            sfile = rpath + f + '.csv' 
-            sdf = pd.read_csv(sfile,index_col = 0,parse_dates=True)
-            sdf_ratio = sdf['SHIBOR3M']
-            df_dif = pd.DataFrame(sdf_ratio)
         else:
             continue
 
@@ -368,11 +333,32 @@ def cal_csab():
     output_to_csv(opath,datadfcorr,'')
 
 def cal_hr():
-    pathdict = {'VIX.GI':'/work/' + uname + '/input/idxetf/','hz.iv.1m':'/work/jzhu/output/ixew/','nh.iv.6m':'/work/jzhu/output/ixew/'}
+    pathdict = {
+                '510300':'input/hz/',
+                'VIX.GI':'data/pol/work/jzhu/input/idxetf/',
+                'SPY.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLB.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLC.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLE.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLF.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLI.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLK.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLY.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLV.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLP.P':'data/pol/work/jzhu/input/idxetf/',
+                'XLU.P':'data/pol/work/jzhu/input/idxetf/',
+                'USDX.FX':'data/pol/work/jzhu/input/idxetf/',
+                'SPGSGC.TR':'data/pol/work/jzhu/input/global/',
+                'hz.iv.1m':'output/ixew/',
+                'nh.iv.6m':'output/ixew/',
+                'NH0100.NHF':'input/nh/','NH0200.NHF':'input/nh/','NH0300.NHF':'input/nh/','NH0500.NHF':'input/nh/'}
+
     datadict = {}
-    for i in ['VIX.GI','hz.iv.1m','nh.iv.6m']:
+    #for i in ['VIX.GI','hz.iv.1m','nh.iv.6m','510300','NH0100.NHF','NH0200.NHF','NH0300.NHF','NH0500.NHF']:
+    for i in pathdict.keys():
         if True:
-            fpath = pathdict[i] + i + '.csv'
+            fpath = '/work/jzhu/' + pathdict[i] + i + '.csv'
+            print(fpath)
             data = pd.read_csv(fpath)
             data.columns=[name.upper() for name in list(data.columns)]
             data.index = data['DATE'].apply(pd.to_datetime)
@@ -381,8 +367,36 @@ def cal_hr():
     datadf = pd.DataFrame.from_dict(datadict,orient='columns')
     if  os.environ['ASSETTYPE'] == 'iv_sp_hz':
         datadf['ixew']= datadf['VIX.GI'] /  datadf['hz.iv.1m']
+    elif  os.environ['ASSETTYPE'] == 'px_cyc_def':
+        cycmean = datadf[['XLB.P','XLI.P','XLY.P','XLK.P','XLE.P','XLF.P']].mean(axis=1)
+        defmean = datadf[['XLP.P','XLV.P','XLC.P','XLU.P']].mean(axis=1)
+        datadf['ixew']= cycmean /  defmean
+    elif  os.environ['ASSETTYPE'] == 'px_xlb_sp':
+        datadf['ixew']= datadf['XLB.P'] /  datadf['SPY.P']
+    elif  os.environ['ASSETTYPE'] == 'px_xlk_sp':
+        datadf['ixew']= datadf['XLK.P'] /  datadf['SPY.P']
+    elif  os.environ['ASSETTYPE'] == 'px_xle_sp':
+        datadf['ixew']= datadf['XLE.P'] /  datadf['SPY.P']
+    elif  os.environ['ASSETTYPE'] == 'px_xlf_sp':
+        datadf['ixew']= datadf['XLF.P'] /  datadf['SPY.P']
+    elif  os.environ['ASSETTYPE'] == 'px_gc_usd':
+        datadf['ixew']= datadf['SPGSGC.TR'] /  datadf['USDX.FX']
     elif  os.environ['ASSETTYPE'] == 'iv_nh_hz':
         datadf['ixew']= datadf['nh.iv.6m'] /  datadf['hz.iv.1m']#.fillna(method='ffill')# ,limit=10)
+    elif  os.environ['ASSETTYPE'] == 'px_nh_hz':
+        datadf['ixew']= datadf['NH0100.NHF'] /  datadf['510300']
+    elif  os.environ['ASSETTYPE'] == 'px_ag_nh':
+        datadf['ixew']= datadf['NH0300.NHF'] /  datadf['NH0100.NHF']
+    elif  os.environ['ASSETTYPE'] == 'px_in_nh':
+        datadf['ixew']= datadf['NH0200.NHF'] /  datadf['NH0100.NHF']
+    elif  os.environ['ASSETTYPE'] == 'px_ec_nh':
+        datadf['ixew']= datadf['NH0500.NHF'] /  datadf['NH0100.NHF']
+    elif  os.environ['ASSETTYPE'] == 'px_ag_ec':
+        datadf['ixew']= datadf['NH0300.NHF'] /  datadf['NH0500.NHF']
+    elif  os.environ['ASSETTYPE'] == 'px_in_ec':
+        datadf['ixew']= datadf['NH0200.NHF'] /  datadf['NH0500.NHF']
+
+    opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.csv'
     opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.csv'
     output_to_csv(opath,datadf,'ixew')
 
