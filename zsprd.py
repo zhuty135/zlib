@@ -12,6 +12,7 @@ from empyrical import sharpe_ratio, annual_return,max_drawdown, cum_returns, ann
 from zutils import get_business_date_list, get_prev_business_date
 from datetime import datetime,date, timedelta
 
+pz_code= {'NH0100.NHF':'NH0100.NHF','a':'NH0001.NHF', 'y':'NH0002.NHF', 'c':'NH0003.NHF', 'l':'NH0004.NHF', 'cf':'NH0006.NHF', 'sr':'NH0007.NHF', 'au':'NH0008.NHF', 'zn':'NH0009.NHF', 'fu':'NH0010.NHF', 'ta':'NH0011.NHF', 'cu':'NH0012.NHF', 'al':'NH0013.NHF', 'ru':'NH0014.NHF', 'm':'NH0015.NHF', 'rb':'NH0016.NHF', 'wr':'NH0017.NHF', 'v':'NH0019.NHF', 'oi':'NH0020.NHF', 'p':'NH0021.NHF', 'k':'NH0022.NHF', 'pb':'NH0023.NHF', 'ma':'NH0024.NHF', 'ag':'NH0025.NHF', 'fg':'NH0026.NHF', 'rs':'NH0027.NHF', 'rm':'NH0028.NHF', 'jm':'NH0029.NHF', 'zc':'NH0030.NHF', 'bu':'NH0031.NHF', 'i':'NH0032.NHF', 'jd':'NH0033.NHF', 'pp':'NH0037.NHF', 'b':'NH0047.NHF', 'pg':'NH0052.NHF', 'cs':'NHCS.NHF','sc':'NH0041.NHF'}
 def lgk(res):
     landa = 0.9049
     N = 30
@@ -105,8 +106,9 @@ def fake_data(df):
     df = df.append(newdf)
     df.sort_index(inplace=True)
     df = df[~df.index.duplicated(keep='first')]
-    df.ffill(limit=3,inplace=True)
-    df.bfill(limit=3,inplace=True)
+    #20220525 df.ffill(limit=3,inplace=True)
+    #20220525 df.bfill(limit=3,inplace=True)
+    df.ffill(inplace=True)
     
 
     #print('test',df)
@@ -118,8 +120,8 @@ def last_day_of_month(any_day):
 
 def cal_usmacro():
     #ofile_list = ['M1ADVPPI','ODSCHG','EDMCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG','M1_PPI_CHG'] 
-    ofile_list = ['ODSCHG']
-    columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_MaterialInventory']#,'M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M',]
+    ofile_list = ['ODSCHG','PMI_NewOrder','PMI_GoodsInventory','PMI_CustomerInventory','BAMLH0A1HYBB','BAMLC0A4CBBB','T10Y2Y','DGS10','DGS2','VIX','VVIX','SKEW']
+    columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_CustomerInventory']#,'M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M',]
 
     rpath = '/work/' + uname + '/data/raw/'
     rfile = rpath + 'pmi.csv'
@@ -135,6 +137,14 @@ def cal_usmacro():
         if f in ['ODSCHG',]:
             df_ratio = df['PMI_NewOrder'][:-1]/df['PMI_GoodsInventory'][:-1]
             df_dif = pd.DataFrame(df_ratio.diff())
+        elif f in ['PMI_GoodsInventory','PMI_NewOrder','PMI_CustomerInventory']:
+            df_ratio = df[f]
+            df_dif = pd.DataFrame(df_ratio)
+        elif f in ['BAMLH0A1HYBB','BAMLC0A4CBBB','T10Y2Y','DGS10','DGS2','VIX','VVIX','SKEW']:
+            sfile = rpath + f + '.csv'
+            sdf = pd.read_csv(sfile,index_col = 0,parse_dates=True)
+            sdf_ratio = sdf.iloc[:,0]
+            df_dif = pd.DataFrame(sdf_ratio)
         else:
             continue
 
@@ -151,7 +161,9 @@ def cal_usmacro():
 def get_tickers():
     if os.environ['ASSETTYPE'] == 'cfpa':
         #tickers = ['CFCUPA.PO','CFAUPA.PO','CFMAPA.PO','CFRUPA.PO','CFIPA.PO','CFAGPA.PO','CFNIPA.PO','CFYPA.PO', 'CFPPPA.PO','CFPBPA.PO','CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO','CFRBPA.PO', 'CFCFPA.PO','CFJDPA.PO','CFALPA.PO','CFZCPA.PO','CFZNPA.PO','CFPPA.PO','CFOIPA.PO', 'CFLPA.PO','CFAPA.PO','CFVPA.PO','CFJPA.PO','CFJMPA.PO','CFFGPA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO']
-        tickers = ['CFSMPA.PO','CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO','CFCICA.PO',  'CFFMSA.PO', 'CFPMSA.PO','CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO','TFTFPA.PO','TFTSPA.PO','TFTPA.PO','IFIFPA.PO','IFICPA.PO','IFIHPA.PO',]
+        tickers = ['CFSMPA.PO','CFFUPA.PO','CFCUPA.PO', 'CFAUPA.PO','CFMAPA.PO', 'CFRUPA.PO', 'CFIPA.PO','CFAGPA.PO', 'CFSRPA.PO','CFTAPA.PO','CFMPA.PO','CFCPA.PO', 'CFRBPA.PO','CFCFPA.PO','CFJDPA.PO','CFNIPA.PO','CFYPA.PO','CFALPA.PO', 'CFPBPA.PO', 'CFPPPA.PO', 'CFZCPA.PO', 'CFAPA.PO','CFFGPA.PO','CFLPA.PO','CFOIPA.PO','CFPPA.PO','CFJPA.PO','CFBUPA.PO','CFSNPA.PO', 'CFJMPA.PO','CFCSPA.PO','CFHCPA.PO', 'CFRMPA.PO','CFZNPA.PO','CFVPA.PO','CFAPPA.PO','CFSCPA.PO','CFCICA.PO',  'CFFMSA.PO', 'CFPMSA.PO','CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO', 'CYOPSA.PO']
+    elif os.environ['ASSETTYPE'] == 'ifpa':
+        tickers = [ 'IFIFPA.PO','IFICPA.PO','IFIHPA.PO']
     elif os.environ['ASSETTYPE'] == 'spgs' :
         tickers = ['SPGSAG.TR',  'SPGSCL.TR',  'SPGSFC.TR',  'SPGSHU.TR',  'SPGSIL.TR',  'SPGSKW.TR',  'SPGSLV.TR',  'SPGSRE.TR',  'SPGSSO.TR', 'SPGSBR.TR',  'SPGSCN.TR',  'SPGSGC.TR',  'SPGSIA.TR',  'SPGSIN.TR',  'SPGSLC.TR',  'SPGSNG.TR',  'SPGSSB.TR',  'SPGSWH.TR', 'SPGSCC.TR',  'SPGSCT.TR',  'SPGSGO.TR',  'SPGSIC.TR',  'SPGSIZ.TR',  'SPGSLE.TR',  'SPGSPM.TR',  'SPGSSF.TR', 'SPGSCI.TR',  'SPGSEN.TR',  'SPGSHO.TR',  'SPGSIK.TR',  'SPGSKC.TR',  'SPGSLH.TR',  'SPGSPT.TR',  'SPGSSI.TR',]
     elif os.environ['ASSETTYPE'] == 'iv' :
@@ -164,14 +176,15 @@ def get_tickers():
         tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','FTSE.GI','SKYY.O','HYG.P','GSG.P','FCHI.GI','VNINDEX.GI','SETI.GI','EWU.P','EWQ.P','EWG.P','EWJ.P','EWS.P','EWA.P','EWZ.P','FXY.P','FXE.P','FXB.P','VNM.P','THD.P','TBT.P', ] 
     elif os.environ['ASSETTYPE'] == 'shsz':
         tickers = ['000016.SH','000905.SH','399300.SZ']
-    elif os.environ['ASSETTYPE'] == 'nh':
-        tickers = [ 'NH0001.NHF', 'NH0017.NHF', 'NH0016.NHF', 'NH0015.NHF', 'NH0014.NHF', 'NH0013.NHF', 'NH0012.NHF', 'NH0011.NHF', 'NH0010.NHF', 'NH0009.NHF', 'NH0008.NHF', 'NH0007.NHF', 'NH0006.NHF', 'NH0005.NHF', 'NH0004.NHF', 'NH0003.NHF', 'NH0002.NHF', 'NH0035.NHF', 'NH0034.NHF', 'NH0033.NHF', 'NH0032.NHF', 'NH0031.NHF', 'NH0030.NHF', 'NH0029.NHF', 'NH0028.NHF', 'NH0027.NHF', 'NH0026.NHF', 'NH0025.NHF', 'NH0024.NHF', 'NH0023.NHF', 'NH0022.NHF', 'NH0021.NHF', 'NH0020.NHF', 'NH0019.NHF', 'NH0018.NHF', 'NH0055.NHF', 'NH0054.NHF', 'NH0053.NHF', 'NH0052.NHF', 'NH0051.NHF', 'NH0050.NHF', 'NH0049.NHF', 'NH0048.NHF', 'NH0047.NHF', 'NH0046.NHF', 'NH0045.NHF', 'NH0044.NHF', 'NH0043.NHF', 'NH0042.NHF', 'NH0041.NHF', 'NH0040.NHF', 'NH0039.NHF', 'NH0038.NHF', 'NH0037.NHF', 'NH0036.NHF', 'NHSN.NHF', 'NHSM.NHF', 'NHSF.NHF', 'NHNI.NHF', 'NHLR.NHF', 'NHCS.NHF', 'NH0800.NHF', 'NH0700.NHF', 'NH0600.NHF', 'NH0500.NHF', 'NH0400.NHF', 'NH0300.NHF', 'NH0200.NHF', 'NH0100.NHF', 'NH0057.NHF', 'NH0056.NHF', 'W00109SPT.NM',]
+    elif os.environ['ASSETTYPE'] == 'nhpa':
+        tickers = [ 'NH0001.NHF', 'NH0017.NHF', 'NH0016.NHF', 'NH0015.NHF', 'NH0014.NHF', 'NH0013.NHF', 'NH0012.NHF', 'NH0011.NHF', 'NH0010.NHF', 'NH0009.NHF', 'NH0008.NHF', 'NH0007.NHF', 'NH0006.NHF', 'NH0005.NHF', 'NH0004.NHF', 'NH0003.NHF', 'NH0002.NHF', 'NH0035.NHF', 'NH0034.NHF', 'NH0033.NHF', 'NH0032.NHF', 'NH0031.NHF', 'NH0030.NHF', 'NH0029.NHF', 'NH0028.NHF', 'NH0027.NHF', 'NH0026.NHF', 'NH0025.NHF', 'NH0024.NHF', 'NH0023.NHF', 'NH0022.NHF', 'NH0021.NHF', 'NH0020.NHF', 'NH0019.NHF', 'NH0018.NHF', 'NH0055.NHF', 'NH0054.NHF', 'NH0053.NHF', 'NH0052.NHF', 'NH0051.NHF', 'NH0050.NHF', 'NH0049.NHF', 'NH0048.NHF', 'NH0047.NHF', 'NH0046.NHF', 'NH0045.NHF', 'NH0044.NHF', 'NH0043.NHF', 'NH0042.NHF', 'NH0041.NHF', 'NH0040.NHF', 'NH0039.NHF', 'NH0038.NHF', 'NH0037.NHF', 'NH0036.NHF', 'NHSN.NHF', 'NHSM.NHF', 'NHSF.NHF', 'NHNI.NHF', 'NHLR.NHF', 'NHCS.NHF', ]
+    elif os.environ['ASSETTYPE'] == 'nhsa':
+        tickers = [ 'NH0800.NHF', 'NH0700.NHF', 'NH0600.NHF', 'NH0500.NHF', 'NH0400.NHF', 'NH0300.NHF', 'NH0200.NHF', 'NH0100.NHF', 'NH0057.NHF', 'NH0056.NHF', 'W00109SPT.NM']
     else:
         tickers = []
         tickers.append(os.environ['ASSETTYPE'] )
     return tickers 
 
-pz_code= {'NH0100.NHF':'NH0100.NHF','a':'NH0001.NHF', 'y':'NH0002.NHF', 'c':'NH0003.NHF', 'l':'NH0004.NHF', 'cf':'NH0006.NHF', 'sr':'NH0007.NHF', 'au':'NH0008.NHF', 'zn':'NH0009.NHF', 'fu':'NH0010.NHF', 'ta':'NH0011.NHF', 'cu':'NH0012.NHF', 'al':'NH0013.NHF', 'ru':'NH0014.NHF', 'm':'NH0015.NHF', 'rb':'NH0016.NHF', 'wr':'NH0017.NHF', 'v':'NH0019.NHF', 'oi':'NH0020.NHF', 'p':'NH0021.NHF', 'k':'NH0022.NHF', 'pb':'NH0023.NHF', 'ma':'NH0024.NHF', 'ag':'NH0025.NHF', 'fg':'NH0026.NHF', 'rs':'NH0027.NHF', 'rm':'NH0028.NHF', 'jm':'NH0029.NHF', 'zc':'NH0030.NHF', 'bu':'NH0031.NHF', 'i':'NH0032.NHF', 'jd':'NH0033.NHF', 'pp':'NH0037.NHF', 'b':'NH0047.NHF', 'pg':'NH0052.NHF', 'cs':'NHCS.NHF','sc':'NH0041.NHF'}
 
 
 def cal_crv():
@@ -460,36 +473,81 @@ def cal_ixew():
     opath =  '/work/' + uname + '/output/ixew/' + os.environ['ASSETTYPE']  + '.csv' 
     output_to_csv(opath,datadf,'ixew')
 
-
-    
-def cal_prob():
-    tickers = get_tickers() 
-
-    agg_df = None#pd.DataFrame()
-
-    for ticker in tickers:
+def get_path(ticker):
+    if True: 
         ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
         if re.match(r'.*\.TR$',ticker):
             ipath += 'global/'
         elif re.match(r'.*\.NHF$',ticker) or  re.match(r'.*\.NM$',ticker) :
             ipath += 'nh/'
-        elif re.match(r'.*\.GI$',ticker) or  re.match(r'.*\.P$',ticker) or  re.match(r'.*\.HI$',ticker) or  re.match(r'.*\.O$',ticker) or  re.match(r'.*\.FX$',ticker):
+        elif re.match(r'.*\.GI$',ticker) or  re.match(r'.*\.P$',ticker) or  re.match(r'.*\.HI$',ticker) or  re.match(r'.*\.O$',ticker) or  re.match(r'.*\.FX$',ticker) or re.match(r'.*\.BAT$',ticker):
             ipath += 'idxetf/'
         elif re.match(r'.*iv.*\.PO$',ticker):
             ipath += 'iv/'
+        elif re.match(r'.*\.SH$',ticker) or  re.match(r'.*\.SZ$',ticker):
+            ipath += 'hz/'
         else:
             ipath = '/work/' + uname + '/data/pol/'
             ipath += 'Index/'#'shared/spgs/'
-        print(ipath)
+        fpath = ipath + ticker + '.csv'
+    return(fpath)
 
-        data = pd.read_csv(ipath + ticker + '.csv')###bond index
+
+
+def cal_std():
+    tickers = get_tickers() 
+    stddict = {}
+    for ticker in tickers:
+        fpath = get_path(ticker)
+        print(fpath)
+
+        data = pd.read_csv(fpath)###bond index
+
+        data.columns=[name.upper() for name in list(data.columns)]
+        #data['DATE'] = pd.to_datetime(data['DATE'], utc=True)
+        data=data.set_index('DATE')
+
+        diffdf = np.log(data).diff()
+
+        
+        stddf = diffdf.rolling(21).std() * np.sqrt(252)
+        stddict[ticker] = stddf['CLOSE']
+        if eval(os.environ['OUTPUTFLAG']):
+            opath  = '/work/jzhu/output/cal/std_' + ticker  + '.csv'
+            print('OUTPUT to:', opath)
+            stddf.to_csv(opath)
+    
+    if eval(os.environ['OUTPUTFLAG']):
+        df = pd.DataFrame(pd.DataFrame.from_dict(stddict,orient='columns').mean(axis=1))
+        df.columns = ['OPEN']
+        df["HIGH"] = df.iloc[:,0]
+        df["LOW"]  = df.iloc[:,0]
+        df["CLOSE"] = df.iloc[:,0]
+        df["VOLUME"] = np.sign(df.iloc[:,0])*1e9
+        df["ADJUSTED"] = df.iloc[:,0]
+        df.index.rename('DATE',inplace=True)
+
+        #df =df.set_index(0)
+        opath  = '/work/jzhu/output/cal/std_' +  os.environ['ASSETTYPE']  + '_rv.csv'
+
+        print('OUTPUT to:', opath)
+        df.to_csv(opath)
+    
+    
+def cal_brd():
+    tickers = get_tickers() 
+
+    agg_df = None#pd.DataFrame()
+
+    for ticker in tickers:
+        fpath = get_path(ticker)
+        print(fpath)
+
+        data = pd.read_csv(fpath)###bond index
         data.columns=[name.upper() for name in list(data.columns)]
         data['DATETIME'] = data['DATE'].apply(pd.to_datetime)
         
         data.index = data['DATE'].apply(pd.to_datetime)
-        #data = data[data.index<=pd.to_datetime('2018/4/1')]
-        #data['CLOSE'].plot()
-        ##calendar dates
         data['weekday'] = data['DATETIME'].apply(lambda x:x.weekday())+1
         data['day'] = data['DATETIME'].apply(lambda x:x.day)
         data['month'] = data['DATETIME'].apply(lambda x:x.month)
@@ -497,6 +555,7 @@ def cal_prob():
         data = data[data['weekday'].isin([1,2,3,4,5])]
         data['chg'] = data['CLOSE']/data['CLOSE'].shift(1)-1.
         data['chg'].iat[0]=0.
+        
         dayall = data[['year','month','chg']].groupby(['year','month']).std()
         dayall = dayall.reset_index()
         dayall['std_chg'] = dayall['chg']- dayall['chg'].shift(1)
@@ -526,20 +585,36 @@ def cal_prob():
         output['median_begin']=np.round(monthall_1[['month','month_chg_1']].groupby(['month']).median(),2)
         output['prob_begin'] = np.round(monthall_1[['month','month_chg_1']].groupby(['month']).apply(prob)['month_chg_1'],2)
         output['std_begin']= np.round(monthall_1[['month','month_chg_1']].groupby(['month']).std(),2)
-        if eval(os.environ['OUTPUTFLAG']):
-            output.to_csv('/work/jzhu/output/cal/calendar_'+ticker + '.csv' + os.environ['DERIVED'])
-        else:
-            print(ticker,'\n',output)
+
+        daystd = data['chg'].rolling(21).std()
         if agg_df is None:
-            agg_df = output['std']
+            agg_df =  data['chg']/daystd
+            magg_df =  monthall['month_chg'] 
         else:
-            agg_df = pd.concat([agg_df,output['std']],axis=1)
+            agg_df = pd.concat([agg_df, data['chg']/daystd ],axis=1)
+            magg_df = pd.concat([magg_df,monthall['month_chg']],axis=1)
     agg_df.columns = tickers
+    magg_df.columns = tickers
     if True:#eval(os.environ['OUTPUTFLAG']):
-        agg_df.to_csv('/work/jzhu/output/cal/calendar_agg.csv')
-    print(agg_df)
-    print(agg_df.mean(axis=1))
-    print(agg_df.mean(axis=0))
+
+        opath  = '/work/jzhu/output/cal/brd_' +  os.environ['ASSETTYPE']  + '_agg.csv'
+        print('output to:',opath)
+        tmpdf = pd.DataFrame(np.sign(agg_df[np.abs(agg_df)>2]).sum(axis=1))
+        odf = fake_data(tmpdf)
+        odf.to_csv(opath)
+
+        opath  = '/work/jzhu/output/cal/brd_' +  os.environ['ASSETTYPE']  + '_abs_agg.csv'
+        print('output to:',opath)
+        tmpdf = pd.DataFrame(np.abs(np.sign(agg_df[np.abs(agg_df)>2])).sum(axis=1))
+        odf = fake_data(tmpdf)
+        odf.to_csv(opath)
+
+
+        opath  = '/work/jzhu/output/cal/brd_' +  os.environ['ASSETTYPE']  + '_magg.csv'
+        print('output to:',opath)
+        tmpdf = pd.DataFrame(np.sign(magg_df).sum(axis=1))
+        odf = fake_data(tmpdf)
+        odf.to_csv(opath)
 
 import talib
 def convert_to_w(df):
