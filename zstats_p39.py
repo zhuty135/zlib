@@ -1,5 +1,5 @@
-#!/usr/bin/python3
 #!/usr/local/anaconda3/bin/python3.9
+##!/usr/bin/python3
 import sys
 import pwd
 import os
@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import math
 from empyrical import sharpe_ratio, annual_return,max_drawdown, cum_returns, annual_volatility 
-from zutils_p35 import get_business_date_list, get_prev_business_date
+from zutils_p39 import get_business_date_list, get_prev_business_date
 from datetime import datetime,date, timedelta
 
 
@@ -122,7 +122,7 @@ def cal_macro():
         if f in ['ODSCHG',]:
             df_ratio = df['PMI_NewOrder'][:-1]/df['PMI_GoodsInventory'][:-1]
             df_dif = pd.DataFrame(df_ratio.diff())
-        elif f in ['PMI','PMI_GoodsInventory','PMI_NewOrder','PMI_MaterialInventory','PMI_Production','PMI_NewExportOrder']:
+        elif f in ['PMI_GoodsInventory','PMI_NewOrder','PMI_MaterialInventory','PMI_Production','PMI_NewExportOrder']:
             df_ratio = df[f]
             df_dif = pd.DataFrame(df_ratio)
         elif f in ['M1ADVPPI',]:

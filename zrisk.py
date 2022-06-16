@@ -95,7 +95,8 @@ def last_day_of_month(any_day):
     return next_month - timedelta(days=next_month.day)
 
 def cal_pos():
-    ofile_list = ['103_port','102_port','wenjian3_port']
+    #ofile_list = ['103_port','102_port','wenjian3_port']
+    ofile_list = ['103_port']
     iv_list = ['al','au','c','cf','cu','i','l','m','ma','p','pp','pg','rm','ru','sc','sr','ta','v','zc','zn']
 
     columns = ['id','market value',]# 

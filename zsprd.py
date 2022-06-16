@@ -1,4 +1,5 @@
-#!/usr/bin/python3
+#!/usr/local/anaconda3/bin/python3.9
+###!/usr/bin/python3
 import sys
 import pwd
 import os
@@ -82,19 +83,19 @@ def prob(x):
 def fake_data(df):
     #if df.shape[1] < 2:
 
-    df.columns = ['OPEN']
-    df["HIGH"] = df.iloc[:,0]
-    df["LOW"]  = df.iloc[:,0]
-    df["CLOSE"] = df.iloc[:,0]
-    df["VOLUME"] = np.sign(df.iloc[:,0])*1e9
-    df["ADJUSTED"] = df.iloc[:,0]
+    df.columns = ['open']
+    df["high"] = df.iloc[:,0]
+    df["low"]  = df.iloc[:,0]
+    df["close"] = df.iloc[:,0]
+    df["volume"] = np.sign(df.iloc[:,0])*1e9
+    df["adjusted"] = df.iloc[:,0]
     dt_fmt='%Y/%m/%d'
 
     sd = df.index[0].strftime(dt_fmt)
     #ed = df.index[-1].strftime(dt_fmt)
     ed = date.today().strftime(dt_fmt)
-    bd_list = get_business_date_list(fmt=dt_fmt)
-    print(sd,ed,type(bd_list))
+    bd_list = get_business_date_list(fmt=dt_fmt,caltype='NYSE')
+    print(sd,ed,(bd_list))
     short_bd_list = pd.to_datetime(bd_list[(bd_list >= sd) & (bd_list <= ed)])
     newdf = df.copy(deep=True)
     #print('newdf\n',newdf)
@@ -103,7 +104,8 @@ def fake_data(df):
     df = newdf
     ''' 
     newdf = newdf.reindex(short_bd_list)
-    df = df.append(newdf)
+    #pd.DataFrame(bd_list).to_csv('/tmp/bd_list.txt')
+    df = newdf # df.append(newdf)
     df.sort_index(inplace=True)
     df = df[~df.index.duplicated(keep='first')]
     #20220525 df.ffill(limit=3,inplace=True)
@@ -120,7 +122,7 @@ def last_day_of_month(any_day):
 
 def cal_usmacro():
     #ofile_list = ['M1ADVPPI','ODSCHG','EDMCHG','MGPCHG', 'DEBTCHG_YEAR','PPI_CHG','SHIBOR3M', 'CREDITCURVE','YIELDCURVE','M2_CHG','ADDVALUE_CHG','USCNYIELD','DEBTCHG_F','TFTPA.PO','M1M2_CHG','CPI_PPI_CHG', 'PPI_CHG3','M1M2_CHG3','ODSCHG3','CONSUMER_CHG','M1_PPI_CHG'] 
-    ofile_list = ['ODSCHG','PMI_NewOrder','PMI_GoodsInventory','PMI_CustomerInventory','BAMLH0A1HYBB','BAMLC0A4CBBB','T10Y2Y','DGS10','DGS2','VIX','VVIX','SKEW']
+    ofile_list = ['ODSCHG','CPIMEDSL','CUSR0000SEEB','PMI_NewOrder','PMI_GoodsInventory','PMI_CustomerInventory','BAMLH0A1HYBB','BAMLC0A4CBBB','T10Y2Y','DGS10','DGS2','VIX','VVIX','SKEW']
     columns = ['PMI','PMI_Production','PMI_NewOrder','PMI_NewExportOrder','PMI_GoodsInventory','PMI_CustomerInventory']#,'M1','M2','CPI','PPI','RMBloan','Industrial_added_value','SHIBOR3M',]
 
     rpath = '/work/' + uname + '/data/raw/'
@@ -140,17 +142,23 @@ def cal_usmacro():
         elif f in ['PMI_GoodsInventory','PMI_NewOrder','PMI_CustomerInventory']:
             df_ratio = df[f]
             df_dif = pd.DataFrame(df_ratio)
-        elif f in ['BAMLH0A1HYBB','BAMLC0A4CBBB','T10Y2Y','DGS10','DGS2','VIX','VVIX','SKEW']:
+        elif f in ['CPIMEDSL','CUSR0000SEEB','BAMLH0A1HYBB','BAMLC0A4CBBB','T10Y2Y','DGS10','DGS2','VIX','VVIX','SKEW']:
             sfile = rpath + f + '.csv'
             sdf = pd.read_csv(sfile,index_col = 0,parse_dates=True)
-            sdf_ratio = sdf.iloc[:,0]
+            if f in ['CPIMEDSL','CUSR0000SEEB']:
+                sdf_ratio = sdf.iloc[:,0].diff(periods=12) /  sdf.iloc[:,0]
+            else:
+                sdf_ratio = sdf.iloc[:,0]
             df_dif = pd.DataFrame(sdf_ratio)
         else:
             continue
 
 
         odf = fake_data(df_dif)
-        odf.index.rename('DATE',inplace=True)
+        st = date(2000, 1, 8)
+
+        odf = odf.loc[st:,]
+        odf.index.rename('date',inplace=True)
         print(odf)
         if eval(os.environ['OUTPUTFLAG']):
             odf.to_csv(ofile,date_format='%Y/%m/%d')
@@ -174,8 +182,13 @@ def get_tickers():
     elif os.environ['ASSETTYPE'] == 'idxetf' :
         #tickers = ['VIX.GI','USO.P','USDCNH.FX','XLK.P','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P']
         tickers = ['VIX.GI','USO.P','USDCNH.FX','SPGSCL.TR','UUP.P','IBOVESPA.GI','N225.GI','NDX.GI','HSI.HI','TLT.O','VIG.P', 'VBR.P','SOX.GI','XT.O','HACK.P','IWN.P','DBA.P','IWD.P','EURUSD.FX','INDA.BAT','AS51.GI','STI.GI','EWY.P','VXX.BAT','KWEB.P','ARKK.P','ARKG.P','GDAXI.GI', 'XLB.P', 'XLC.P', 'XLI.P', 'XLE.P','XLF.P','XLP.P', 'XLU.P','XLV.P','XLY.P','EFA.P','EEM.P','IYR.P','SPY.P','LIT.P','TAN.P','SNSR.O','BOTZ.O','IWF.P','IWM.P','FTSE.GI','SKYY.O','HYG.P','GSG.P','FCHI.GI','VNINDEX.GI','SETI.GI','EWU.P','EWQ.P','EWG.P','EWJ.P','EWS.P','EWA.P','EWZ.P','FXY.P','FXE.P','FXB.P','VNM.P','THD.P','TBT.P', ] 
+    elif os.environ['ASSETTYPE'] == 'FX':
+        tickers = ['USDX.FX','USDCNH.FX','EURUSD.FX','USDJPY.FX','GBPUSD.FX']
     elif os.environ['ASSETTYPE'] == 'shsz':
         tickers = ['000016.SH','000905.SH','399300.SZ']
+    elif os.environ['ASSETTYPE'] == 'tf':
+        tickers = ['H00140.SH','H11077.SH',]
+
     elif os.environ['ASSETTYPE'] == 'nhpa':
         tickers = [ 'NH0001.NHF', 'NH0017.NHF', 'NH0016.NHF', 'NH0015.NHF', 'NH0014.NHF', 'NH0013.NHF', 'NH0012.NHF', 'NH0011.NHF', 'NH0010.NHF', 'NH0009.NHF', 'NH0008.NHF', 'NH0007.NHF', 'NH0006.NHF', 'NH0005.NHF', 'NH0004.NHF', 'NH0003.NHF', 'NH0002.NHF', 'NH0035.NHF', 'NH0034.NHF', 'NH0033.NHF', 'NH0032.NHF', 'NH0031.NHF', 'NH0030.NHF', 'NH0029.NHF', 'NH0028.NHF', 'NH0027.NHF', 'NH0026.NHF', 'NH0025.NHF', 'NH0024.NHF', 'NH0023.NHF', 'NH0022.NHF', 'NH0021.NHF', 'NH0020.NHF', 'NH0019.NHF', 'NH0018.NHF', 'NH0055.NHF', 'NH0054.NHF', 'NH0053.NHF', 'NH0052.NHF', 'NH0051.NHF', 'NH0050.NHF', 'NH0049.NHF', 'NH0048.NHF', 'NH0047.NHF', 'NH0046.NHF', 'NH0045.NHF', 'NH0044.NHF', 'NH0043.NHF', 'NH0042.NHF', 'NH0041.NHF', 'NH0040.NHF', 'NH0039.NHF', 'NH0038.NHF', 'NH0037.NHF', 'NH0036.NHF', 'NHSN.NHF', 'NHSM.NHF', 'NHSF.NHF', 'NHNI.NHF', 'NHLR.NHF', 'NHCS.NHF', ]
     elif os.environ['ASSETTYPE'] == 'nhsa':
@@ -190,15 +203,17 @@ def get_tickers():
 def cal_crv():
     datadict = {}
     ipath = '/work/' + uname + '/data/pol/work/jzhu/input/'
+    print('ASSETTYPE', os.environ['ASSETTYPE'])
     myassettype =  os.environ['ASSETTYPE'].split('.')[0] #os.environ['ASSETTYPE'][0:2]
-    if  myassettype == 'nh' :
+    if  myassettype == 'nhpa' :
         iv_list = ['al','au','c','cf','cu','i','l','m','ma','pp','rm','ru','sr','ta','v','zc','zn','sc','p','pg']
     elif  myassettype  == 'cfsa' :
         iv_list = ['CFPMSA.PO', 'CFFMSA.PO', 'CYNMSA.PO','CYNHSA.PO', 'CFOPSA.PO', 'CYYLSA.PO', 'CFSCSA.PO','CFCGSA.PO']
     elif  myassettype  == 'hz' :
         iv_list = ['000986.SH','000987.SH','000988.SH','000989.SH','000990.SH','000991.SH','000992.SH','000993.SH','000994.SH','000995.SH']
     elif  myassettype  == 'dtta' :
-        iv_list = ['NH0100.NHF', 'TFTFPA.PO','000016.SH','399300.SZ','UUP.P']
+        #iv_list = ['NH0100.NHF', 'TFTFPA.PO','000016.SH','399300.SZ','UUP.P']
+        iv_list = ['NH0100.NHF', 'H11077.SH','000016.SH','399300.SZ',]#'USDCNH.FX']
     elif  myassettype  == 'gtaa' :
         iv_list = ['GSG.P', 'TLT.O','UUP.P','SPY.P','EEM.P','EFA.P','HYG.P','VIX.GI','N225.GI','NDX.GI','BTC.CME','EURUSD.FX', 'IYR.P']
     elif  myassettype  == 'dm' :
@@ -227,7 +242,7 @@ def cal_crv():
             elif re.match(r'.*\.NHF$',ticker) or re.match(r'.*\.NM',ticker):
                 fpath = fpath + 'nh/' +  pz_code[ticker] + '.csv'
             else:
-                if myassettype == 'nh':
+                if myassettype == 'nhpa':
                     fpath = fpath + 'nh/' +  pz_code[ticker] + '.csv'
                 else:
                     fpath = "/work/jzhu/data/pol/Index/" +  ticker + '.csv'
@@ -235,9 +250,9 @@ def cal_crv():
             print(fpath)
 
             data = pd.read_csv(fpath)###bond index
-            data.columns=[name.upper() for name in list(data.columns)]
-            data.index = data['DATE'].apply(pd.to_datetime)
-            datadict[ticker] = data['CLOSE'][-1500:]
+            data.columns=[name.lower() for name in list(data.columns)]
+            data.index = data['date'].apply(pd.to_datetime)
+            datadict[ticker] = data['close'][-1500:]
             print(ticker,data.iloc[-1,:])
 
     datadf = pd.DataFrame.from_dict(datadict,orient='columns')
@@ -248,7 +263,7 @@ def cal_crv():
         corsum = np.sqrt(retdf.rolling(21).cov().sum(axis=1))
     elif os.environ['ASSETTYPE'].split('.')[2] == 'corr':
         corrwl = 21
-        if myassettype in ('nh','hz','ta','cfsa'):
+        if myassettype in ('nhpa','hz','ta','cfsa'):
             corrwl = 63
         corsum = retdf.rolling(corrwl).corr().sum(axis=1)
     else:
@@ -266,10 +281,10 @@ def cal_crv():
         if eval(os.environ['OUTPUTFLAG']):
             datadf['ixew']= tmpsum
             odf = pd.DataFrame()
-            odf['OPEN']  =  datadf['ixew']
-            odf['HIGH']  =  datadf['ixew']
-            odf['LOW']  =  datadf['ixew']
-            odf['CLOSE']  =  datadf['ixew']
+            odf['open']  =  datadf['ixew']
+            odf['high']  =  datadf['ixew']
+            odf['low']  =  datadf['ixew']
+            odf['close']  =  datadf['ixew']
             #odf =  datadf.mean(axis=1)
             odf.to_csv(ofile,date_format='%Y/%m/%d',header=True)
             print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
@@ -281,10 +296,10 @@ def output_to_csv(opath,datadf,fld):
         ofile = opath
         if eval(os.environ['OUTPUTFLAG']):
             odf = pd.DataFrame()
-            odf['OPEN']  = datadf if fld == '' else datadf[fld] 
-            odf['HIGH']  = datadf if fld == '' else  datadf[fld] 
-            odf['LOW']   = datadf if fld == '' else datadf[fld] 
-            odf['CLOSE']  = datadf if fld == '' else datadf[fld] 
+            odf['open']  = datadf if fld == '' else datadf[fld] 
+            odf['high']  = datadf if fld == '' else  datadf[fld] 
+            odf['low']   = datadf if fld == '' else datadf[fld] 
+            odf['close']  = datadf if fld == '' else datadf[fld] 
             #odf =  datadf.mean(axis=1) 
             odf.to_csv(ofile,date_format='%Y/%m/%d',header=True)
             print('Next step is: cp ' + ofile +  ' /work/jzhu/project/ql/data/')
@@ -506,11 +521,14 @@ def cal_std():
         data.columns=[name.upper() for name in list(data.columns)]
         #data['DATE'] = pd.to_datetime(data['DATE'], utc=True)
         data=data.set_index('DATE')
+        if os.environ['ASSETTYPE'] in ['tf']:
+            diffdf = (data).diff()
+        else:
+            diffdf = np.log(data).diff()
 
-        diffdf = np.log(data).diff()
-
-        
+             
         stddf = diffdf.rolling(21).std() * np.sqrt(252)
+    
         stddict[ticker] = stddf['CLOSE']
         if eval(os.environ['OUTPUTFLAG']):
             opath  = '/work/jzhu/output/cal/std_' + ticker  + '.csv'
